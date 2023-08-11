@@ -1,14 +1,13 @@
-import types
 import random
 import pandas as pd
 import numpy as np
 from datetime import datetime
 
-
 def generate_demand(
         nr_SKUs: int = 2,
         start_date: str = "2023-08-01",
-        time_periods: int = 90
+        time_periods: int = 90,
+        freq: str = "D"
 ) -> pd.DataFrame: 
     
     """"
@@ -17,11 +16,11 @@ def generate_demand(
     Inputs: 
         nr_SKUs (int) - the number of SKUs a random demand will be generated for
         start_date (str) - a date string in the format 'yyyy-mm-dd'
-        time_periods (int) - the number of dates (days) to be generated 
+        time_periods (int) - the number of dates to be generated 
+        freg (str) - frequency of the dates generated, see here of options: https://pandas.pydata.org/docs/user_guide/timeseries.html#offset-aliases
 
     Outputs: 
         Pandas datafrfame
-
     """
     d = {} # demand generated for each SKU goes here
 
@@ -42,7 +41,35 @@ def generate_demand(
     # convert input date from string to date data typye
     start_date = datetime.strptime(start_date, "%Y-%m-%d")
     # add a date column to the dataframe
-    demand["date"] = pd.date_range(start_date, periods=time_periods, freq='D')
+    demand["date"] = pd.date_range(start_date, periods=time_periods, freq=freq)
 
     return demand
 
+
+def find_safety_stock(
+        demand: list,
+        max_lead_time: int = 7,
+        avg_lead_time: int = 3
+) -> int:
+    
+    """
+    The function finds an item's safety stock (SS) following the formula:
+    SS = (Max Daily Sales x Max Lead Time) - (Avg Daily Sales x Avg Lead Time)
+
+    Input:
+        demand (list) - a list of demand values over a given time period
+        max_lead_time (int) - assumed max lead time (days) 
+        avg_lead_time (int) - assumed average lead time (days)
+
+    Output: 
+        Safety stock (integer)
+    """
+
+    # find max and average demand values
+    max_demand = max(demand)
+    avg_demand = int(sum(demand) / len(demand))
+
+    # calcualte the safety stock
+    safety_stock = max_demand * max_lead_time - avg_demand * avg_lead_time
+
+    return safety_stock
