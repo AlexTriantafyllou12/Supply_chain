@@ -8,7 +8,8 @@ from datetime import datetime
 def generate_demand(
         nr_SKUs: int = 2,
         start_date: str = "2023-08-01",
-        time_periods: int = 90
+        time_periods: int = 90,
+        freq: str = "D"
 ) -> pd.DataFrame: 
     
     """"
@@ -17,7 +18,8 @@ def generate_demand(
     Inputs: 
         nr_SKUs (int) - the number of SKUs a random demand will be generated for
         start_date (str) - a date string in the format 'yyyy-mm-dd'
-        time_periods (int) - the number of dates (days) to be generated 
+        time_periods (int) - the number of dates to be generated 
+        freg (str) - frequency of the dates generated, see here of options: https://pandas.pydata.org/docs/user_guide/timeseries.html#offset-aliases
 
     Outputs: 
         Pandas datafrfame
@@ -42,7 +44,7 @@ def generate_demand(
     # convert input date from string to date data typye
     start_date = datetime.strptime(start_date, "%Y-%m-%d")
     # add a date column to the dataframe
-    demand["date"] = pd.date_range(start_date, periods=time_periods, freq='D')
+    demand["date"] = pd.date_range(start_date, periods=time_periods, freq=freq)
 
     return demand
 
