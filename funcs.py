@@ -1,9 +1,7 @@
-import types
 import random
 import pandas as pd
 import numpy as np
 from datetime import datetime
-
 
 def generate_demand(
         nr_SKUs: int = 2,
@@ -23,7 +21,6 @@ def generate_demand(
 
     Outputs: 
         Pandas datafrfame
-
     """
     d = {} # demand generated for each SKU goes here
 
@@ -48,3 +45,31 @@ def generate_demand(
 
     return demand
 
+
+def find_safety_stock(
+        demand: list,
+        max_lead_time: int = 7,
+        avg_lead_time: int = 3
+) -> int:
+    
+    """
+    The function finds an item's safety stock (SS) following the formula:
+    SS = (Max Daily Sales x Max Lead Time) - (Avg Daily Sales x Avg Lead Time)
+
+    Input:
+        demand (list) - a list of demand values over a given time period
+        max_lead_time (int) - assumed max lead time (days) 
+        avg_lead_time (int) - assumed average lead time (days)
+
+    Output: 
+        Safety stock (integer)
+    """
+
+    # find max and average demand values
+    max_demand = max(demand)
+    avg_demand = int(sum(demand) / len(demand))
+
+    # calcualte the safety stock
+    safety_stock = max_demand * max_lead_time - avg_demand * avg_lead_time
+
+    return safety_stock
