@@ -7,45 +7,41 @@ from datetime import datetime
 
 def generate_demand(
         nr_SKUs: int = 2,
-        start_date: str = "2023-08-01",
         time_periods: int = 90,
-        freq: str = "D",
         demand_mean: list = [random.randint(300, 600) for i in range(2)],
         demand_sd: list = [random.randint(50, 100) for i in range(2)]
-) -> pd.DataFrame: 
+) -> np.array: 
     
     """"
     The function generates a dataframe with a date column in the specified range and a column for each SKU with a random daily demand (positive integers with normal distribution).
 
     Inputs: 
         nr_SKUs (int) - the number of SKUs a random demand will be generated for
-        start_date (str) - a date string in the format 'yyyy-mm-dd'
         time_periods (int) - the number of dates to be generated 
-        freg (str) - frequency of the dates generated, see here of options: https://pandas.pydata.org/docs/user_guide/timeseries.html#offset-aliases
+        demand_mean (list) - mean of the generated demand
+        demand_sd (list) - standard deviation of the generated mean
 
     Outputs: 
-        Pandas datafrfame
+        Numpy array with dimensions (nr_SKUs, time_periods)
     """
-    d = {} # demand generated for each SKU goes here
 
-    # generate the demand 
+    d = [] # demand generated for each SKU goes here
+
+    # generate demand 
     for i in range(nr_SKUs):
-
         rand_demand = np.random.normal(
                                 loc=demand_mean[i], 
                                 scale=demand_sd[i], 
                                 size=time_periods)
-        
-         # convert generated demand into positive integers
-        positive_rand_demand = (abs(int(x)) for x in rand_demand)
-        d['SKU_'+str(i)] = positive_rand_demand
+        # check for negative numbers         
+        min_demand = np.min(rand_demand)
+        # if the distribution has a negative value, shift the whole dataset to the right
+        if min_demand < 0:
+            rand_demand = rand_demand - 2 * min_demand
 
-    demand = pd.DataFrame(d)  
- 
-    # convert input date from string to date data typye
-    start_date = datetime.strptime(start_date, "%Y-%m-%d")
-    # add a date column to the dataframe
-    demand["date"] = pd.date_range(start_date, periods=time_periods, freq=freq)
+        d.append(rand_demand)
+
+    demand = np.asarray(d)  
 
     return demand
 
