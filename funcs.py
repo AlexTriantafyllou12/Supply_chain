@@ -73,3 +73,63 @@ def find_safety_stock(
     safety_stock = max_demand * max_lead_time - avg_demand * avg_lead_time
 
     return safety_stock
+
+def find_reorder_point(
+        demand: list,
+        avg_lead_time: int = 3,
+        safety_stock: int = 900
+) -> int:
+    
+    """
+    The function an SKU's reorder point (ROP) following the formula:
+    ROP = (Lead Time x Demand Rate) + Safety Stock
+
+    Input:
+        demand (list)
+        avg_lead_time (int)
+        safety_stock (int)
+    Returns:
+        reorder_point (int)
+    """
+    # assume constant demand rate over the given time period
+    avg_demand = int(sum(demand) / len(demand))
+    # find the reorder point
+    reorder_point = avg_lead_time*avg_demand + safety_stock
+
+    return reorder_point
+
+
+def generate_inventory(
+        demand: list, 
+        reorder_point: int,
+        max_capacity: int = 5000
+) -> list:
+    
+    """
+    The function generates inventory levels given demand and maximum inventory capacity.
+
+    Input:
+        demand (list)
+        reorder_point (int)
+        max_capacity (int)
+
+    Returns:
+        inventory_list (list)
+    """
+    inventory_list = [] # daily inventory levels go here
+    inv = max_capacity # assume inventory is at full capacity at the beginning of the given time period
+    
+    # find the daily inventory level
+    for i in range(len(demand)):
+        # inventory left after fulfilling demand
+        inventory_left  = inv-demand[i]
+        inventory_list.append(inventory_left)
+        # if inventory left is above the reorder point, do not restock
+        if reorder_point < inventory_left:
+            inv = inventory_left
+        # if inventory left is below the reorder point, restock
+        else:
+            inv = max_capacity
+
+    return inventory_list
+    
