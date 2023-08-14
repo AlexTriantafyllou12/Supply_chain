@@ -13,7 +13,7 @@ def generate_demand(
 ) -> np.array: 
     
     """"
-    The function generates a dataframe with a date column in the specified range and a column for each SKU with a random daily demand (positive integers with normal distribution).
+    The function generates a NumPy list for each SKU with a random daily demand (positive integers with normal distribution).
 
     Inputs: 
         nr_SKUs (int) - the number of SKUs a random demand will be generated for
@@ -33,6 +33,8 @@ def generate_demand(
                                 loc=demand_mean[i], 
                                 scale=demand_sd[i], 
                                 size=time_periods)
+        # convert into integers
+        rand_demand = rand_demand.astype(int)
         # check for negative numbers         
         min_demand = np.min(rand_demand)
         # if the distribution has a negative value, shift the whole dataset to the right
@@ -41,7 +43,7 @@ def generate_demand(
 
         d.append(rand_demand)
 
-    demand = np.asarray(d)  
+    demand = np.asarray(d) # convert into a numpy array 
 
     return demand
 
