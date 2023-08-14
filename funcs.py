@@ -9,7 +9,9 @@ def generate_demand(
         nr_SKUs: int = 2,
         start_date: str = "2023-08-01",
         time_periods: int = 90,
-        freq: str = "D"
+        freq: str = "D",
+        demand_mean: list = [random.randint(300, 600) for i in range(2)],
+        demand_sd: list = [random.randint(50, 100) for i in range(2)]
 ) -> pd.DataFrame: 
     
     """"
@@ -30,8 +32,8 @@ def generate_demand(
     for i in range(nr_SKUs):
 
         rand_demand = np.random.normal(
-                                loc=random.randint(100, 500), 
-                                scale=random.randint(10, 50), 
+                                loc=demand_mean[i], 
+                                scale=demand_sd[i], 
                                 size=time_periods)
         
          # convert generated demand into positive integers
