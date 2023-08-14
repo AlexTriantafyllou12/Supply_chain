@@ -1,6 +1,8 @@
+import math
 import random
 import pandas as pd
 import numpy as np
+import scipy.stats as stats
 from datetime import datetime
 
 def generate_demand(
@@ -75,14 +77,16 @@ def find_safety_stock(
     return safety_stock
 
 def find_reorder_point(
-        demand: list,
-        avg_lead_time: int = 3,
-        safety_stock: int = 900
+        demand_mean: int =random.randint(100, 500),
+        demand_sd: int = random.randint(10, 50),
+        lead_time_mean: int = random.randint(1, 4),
+        lead_time_sd: int = random.randint(1, 3),
+        CSL: float = 0.999
 ) -> int:
     
     """
     The function an SKU's reorder point (ROP) following the formula:
-    ROP = (Lead Time x Demand Rate) + Safety Stock
+    ROP = k * (Lead Time * SD_demand^2 + Demand * SD_lead_time^2)^0.5
 
     Input:
         demand (list)
@@ -91,10 +95,12 @@ def find_reorder_point(
     Returns:
         reorder_point (int)
     """
-    # assume constant demand rate over the given time period
-    avg_demand = int(sum(demand) / len(demand))
+    # find k given a CSL target
+    k = round(stats.norm(0, 1).ppf(CSL),2)
+
     # find the reorder point
-    reorder_point = avg_lead_time*avg_demand + safety_stock
+    reorder_point = k * math.sqrt(lead_time_mean*(demand_mean**2) + demand_mean*(lead_time_sd**2))
+    print("With average demand {}, SD_demand of {}, average lead time {} and SD_lead_time of {}, the value of k is {} and reorder point is {}".format(demand_mean, demand_sd, lead_time_mean, lead_time_sd, k, reorder_point))
 
     return reorder_point
 
