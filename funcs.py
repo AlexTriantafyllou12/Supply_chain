@@ -49,34 +49,6 @@ def generate_demand(
 
 
 def find_safety_stock(
-        demand: list,
-        max_lead_time: int = 7,
-        avg_lead_time: int = 3
-) -> int:
-    
-    """
-    The function finds an item's safety stock (SS) following the formula:
-    SS = (Max Daily Sales x Max Lead Time) - (Avg Daily Sales x Avg Lead Time)
-
-    Input:
-        demand (list) - a list of demand values over a given time period
-        max_lead_time (int) - assumed max lead time (days) 
-        avg_lead_time (int) - assumed average lead time (days)
-
-    Output: 
-        Safety stock (integer)
-    """
-
-    # find max and average demand values
-    max_demand = max(demand)
-    avg_demand = int(sum(demand) / len(demand))
-
-    # calcualte the safety stock
-    safety_stock = max_demand * max_lead_time - avg_demand * avg_lead_time
-
-    return safety_stock
-
-def find_reorder_point(
         demand_mean: int =random.randint(100, 500),
         demand_sd: int = random.randint(10, 50),
         lead_time_mean: int = random.randint(1, 4),
@@ -85,22 +57,39 @@ def find_reorder_point(
 ) -> int:
     
     """
-    The function an SKU's reorder point (ROP) following the formula:
-    ROP = k * (Lead Time * SD_demand^2 + Demand * SD_lead_time^2)^0.5
+    The function finds an item's safety stock (SS) following the formula:
+    SS = k * (Lead Time * SD_demand^2 + Demand * SD_lead_time^2)^0.5
+    where k is calculated using a target metric (e.g. CSL)
 
-    Input:
-        demand (list)
-        avg_lead_time (int)
-        safety_stock (int)
-    Returns:
-        reorder_point (int)
+    Output: 
+        Safety stock (integer)
     """
+
     # find k given a CSL target
     k = round(stats.norm(0, 1).ppf(CSL),2)
 
     # find the reorder point
-    reorder_point = k * math.sqrt(lead_time_mean*(demand_mean**2) + demand_mean*(lead_time_sd**2))
-    print("With average demand {}, SD_demand of {}, average lead time {} and SD_lead_time of {}, the value of k is {} and reorder point is {}".format(demand_mean, demand_sd, lead_time_mean, lead_time_sd, k, reorder_point))
+    safety_stock = int(k * math.sqrt(lead_time_mean*(demand_mean**2) + demand_mean*(lead_time_sd**2)))
+    print("With average demand {}, SD_demand of {}, average lead time {} and SD_lead_time of {}, the value of k is {} and safety stock is {}".format(demand_mean, demand_sd, lead_time_mean, lead_time_sd, k, safety_stock))
+
+    return safety_stock
+
+def find_reorder_point(
+        demand_mean: int,
+        safety_stock: int,
+        lead_time_mean: int
+) -> int:
+    
+    """
+    The function an SKU's reorder point (ROP) following the formula:
+    ROP = (Lead Time x Demand Rate) + Safety Stock
+
+    Returns:
+        reorder_point (int)
+    """
+
+    # find the reorder point
+    reorder_point = lead_time_mean*demand_mean + safety_stock
 
     return reorder_point
 
