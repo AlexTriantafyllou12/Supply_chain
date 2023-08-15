@@ -139,7 +139,7 @@ def cost_function(
         order_size: int,
         s: int, # either 0 or 1
         stock_out_cost: int          
-) -> float:
+) -> dict:
     
     """
     The function calculates the total inventory costs following a formula:
@@ -149,7 +149,17 @@ def cost_function(
     Returns:
         cost_func (float)
     """
+    carry_over_costs = i * inventory * per_item_cost * holding_costs
+    delivery_costs = d * (delivery_cost + per_item_cost * order_size)
+    stock_out_costs = s * stock_out_cost
     
-    cost_func = i * inventory * per_item_cost * holding_costs + d * (delivery_cost + per_item_cost * order_size) + s * stock_out_cost 
+    total_cost = carry_over_costs + delivery_costs + stock_out_costs
 
-    return cost_func
+    costs = {
+        "Carryover Cost": carry_over_costs,
+        "Delivery Cost": delivery_costs,
+        "Stockout Costs": stock_out_costs,
+        "Total Costs": total_cost
+    }
+
+    return costs
