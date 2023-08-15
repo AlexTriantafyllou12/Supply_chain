@@ -30,9 +30,6 @@ demand = funcs.generate_demand(
     demand_sd=demand_sd
 )
 
-# assume starting inventory is 5 times the demand on day 1 for each SKU
-starting_inventory = np.asarray([demand[i][0] * 5 for i in range(nr_SKUs)])
-
 safety_stocks = np.asarray([funcs.find_safety_stock( 
                           demand_mean=demand_mean[i],
                           demand_sd=demand_sd[i],
