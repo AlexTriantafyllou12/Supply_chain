@@ -127,4 +127,29 @@ def generate_inventory(
             inv = max_capacity
 
     return inventory_list
+
+# cost_func_t = i * inventory_t-1 * per_item_cost * holding_costs + d * delivery_cost + s * stock_out_cost
+def cost_function(
+        i: int, # either 0 or 1 
+        inventory: int,
+        per_item_cost: int, 
+        holding_costs: float,
+        d: int, # either 0 or 1
+        delivery_cost: int,
+        order_size: int,
+        s: int, # either 0 or 1
+        stock_out_cost: int          
+) -> float:
     
+    """
+    The function calculates the total inventory costs following a formula:
+        cost_func_t = i * inventory_t-1 * per_item_cost * holding_costs + d * (delivery_cost + order_size * per_itme_cost) + s * stock_out_cost
+    Variables i, d and s will have a value of 1 or 0 to indicate if the argument is applicable in the cost function. 
+
+    Returns:
+        cost_func (float)
+    """
+    
+    cost_func = i * inventory * per_item_cost * holding_costs + d * (delivery_cost + per_item_cost * order_size) + s * stock_out_cost 
+
+    return cost_func
