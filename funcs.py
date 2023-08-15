@@ -1,100 +1,95 @@
+import math
 import random
 import pandas as pd
 import numpy as np
+import scipy.stats as stats
 from datetime import datetime
 
 def generate_demand(
         nr_SKUs: int = 2,
-        start_date: str = "2023-08-01",
         time_periods: int = 90,
-        freq: str = "D"
-) -> pd.DataFrame: 
+        demand_mean: list = [random.randint(300, 600) for i in range(2)],
+        demand_sd: list = [random.randint(50, 100) for i in range(2)]
+) -> np.array: 
     
     """"
-    The function generates a dataframe with a date column in the specified range and a column for each SKU with a random daily demand (positive integers with normal distribution).
+    The function generates a NumPy list for each SKU with a random daily demand (positive integers with normal distribution).
 
     Inputs: 
         nr_SKUs (int) - the number of SKUs a random demand will be generated for
-        start_date (str) - a date string in the format 'yyyy-mm-dd'
         time_periods (int) - the number of dates to be generated 
-        freg (str) - frequency of the dates generated, see here of options: https://pandas.pydata.org/docs/user_guide/timeseries.html#offset-aliases
+        demand_mean (list) - mean of the generated demand
+        demand_sd (list) - standard deviation of the generated mean
 
     Outputs: 
-        Pandas datafrfame
+        Numpy array with dimensions (nr_SKUs, time_periods)
     """
-    d = {} # demand generated for each SKU goes here
 
-    # generate the demand 
+    d = [] # demand generated for each SKU goes here
+
+    # generate demand 
     for i in range(nr_SKUs):
-
         rand_demand = np.random.normal(
-                                loc=random.randint(100, 500), 
-                                scale=random.randint(10, 50), 
+                                loc=demand_mean[i], 
+                                scale=demand_sd[i], 
                                 size=time_periods)
-        
-         # convert generated demand into positive integers
-        positive_rand_demand = (abs(int(x)) for x in rand_demand)
-        d['SKU_'+str(i)] = positive_rand_demand
+        # convert into integers
+        rand_demand = rand_demand.astype(int)
+        # check for negative numbers         
+        min_demand = np.min(rand_demand)
+        # if the distribution has a negative value, shift the whole dataset to the right
+        if min_demand < 0:
+            rand_demand = rand_demand - 2 * min_demand
 
-    demand = pd.DataFrame(d)  
- 
-    # convert input date from string to date data typye
-    start_date = datetime.strptime(start_date, "%Y-%m-%d")
-    # add a date column to the dataframe
-    demand["date"] = pd.date_range(start_date, periods=time_periods, freq=freq)
+        d.append(rand_demand)
+
+    demand = np.asarray(d) # convert into a numpy array 
 
     return demand
 
 
 def find_safety_stock(
-        demand: list,
-        max_lead_time: int = 7,
-        avg_lead_time: int = 3
+        demand_mean: int =random.randint(100, 500),
+        demand_sd: int = random.randint(10, 50),
+        lead_time_mean: int = random.randint(1, 4),
+        lead_time_sd: int = random.randint(1, 3),
+        CSL: float = 0.999
 ) -> int:
     
     """
     The function finds an item's safety stock (SS) following the formula:
-    SS = (Max Daily Sales x Max Lead Time) - (Avg Daily Sales x Avg Lead Time)
-
-    Input:
-        demand (list) - a list of demand values over a given time period
-        max_lead_time (int) - assumed max lead time (days) 
-        avg_lead_time (int) - assumed average lead time (days)
+    SS = k * (Lead Time * SD_demand^2 + Demand * SD_lead_time^2)^0.5
+    where k is calculated using a target metric (e.g. CSL)
 
     Output: 
         Safety stock (integer)
     """
 
-    # find max and average demand values
-    max_demand = max(demand)
-    avg_demand = int(sum(demand) / len(demand))
+    # find k given a CSL target
+    k = round(stats.norm(0, 1).ppf(CSL),2)
 
-    # calcualte the safety stock
-    safety_stock = max_demand * max_lead_time - avg_demand * avg_lead_time
+    # find the reorder point
+    safety_stock = int(k * math.sqrt(lead_time_mean*(demand_mean**2) + demand_mean*(lead_time_sd**2)))
+    print("With average demand {}, SD_demand of {}, average lead time {} and SD_lead_time of {}, the value of k is {} and safety stock is {}".format(demand_mean, demand_sd, lead_time_mean, lead_time_sd, k, safety_stock))
 
     return safety_stock
 
 def find_reorder_point(
-        demand: list,
-        avg_lead_time: int = 3,
-        safety_stock: int = 900
+        demand_mean: int,
+        safety_stock: int,
+        lead_time_mean: int
 ) -> int:
     
     """
     The function an SKU's reorder point (ROP) following the formula:
     ROP = (Lead Time x Demand Rate) + Safety Stock
 
-    Input:
-        demand (list)
-        avg_lead_time (int)
-        safety_stock (int)
     Returns:
         reorder_point (int)
     """
-    # assume constant demand rate over the given time period
-    avg_demand = int(sum(demand) / len(demand))
+
     # find the reorder point
-    reorder_point = avg_lead_time*avg_demand + safety_stock
+    reorder_point = lead_time_mean*demand_mean + safety_stock
 
     return reorder_point
 
@@ -132,4 +127,29 @@ def generate_inventory(
             inv = max_capacity
 
     return inventory_list
+
+# cost_func_t = i * inventory_t-1 * per_item_cost * holding_costs + d * delivery_cost + s * stock_out_cost
+def cost_function(
+        i: int, # either 0 or 1 
+        inventory: int,
+        per_item_cost: int, 
+        holding_costs: float,
+        d: int, # either 0 or 1
+        delivery_cost: int,
+        order_size: int,
+        s: int, # either 0 or 1
+        stock_out_cost: int          
+) -> float:
     
+    """
+    The function calculates the total inventory costs following a formula:
+        cost_func_t = i * inventory_t-1 * per_item_cost * holding_costs + d * (delivery_cost + order_size * per_itme_cost) + s * stock_out_cost
+    Variables i, d and s will have a value of 1 or 0 to indicate if the argument is applicable in the cost function. 
+
+    Returns:
+        cost_func (float)
+    """
+    
+    cost_func = i * inventory * per_item_cost * holding_costs + d * (delivery_cost + per_item_cost * order_size) + s * stock_out_cost 
+
+    return cost_func
