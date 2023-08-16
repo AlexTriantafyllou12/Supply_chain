@@ -139,7 +139,7 @@ def cost_function(
         order_size: int,
         s: int, # either 0 or 1
         stock_out_cost: int          
-) -> float:
+) -> dict:
     
     """
     The function calculates the total inventory costs following a formula:
@@ -149,7 +149,119 @@ def cost_function(
     Returns:
         cost_func (float)
     """
+    carry_over_costs = i * inventory * per_item_cost * holding_costs
+    delivery_costs = d * (delivery_cost + per_item_cost * order_size)
+    stock_out_costs = s * stock_out_cost
     
-    cost_func = i * inventory * per_item_cost * holding_costs + d * (delivery_cost + per_item_cost * order_size) + s * stock_out_cost 
+    total_cost = carry_over_costs + delivery_costs + stock_out_costs
 
-    return cost_func
+    costs = {
+        "Carryover Cost": carry_over_costs,
+        "Delivery Cost": delivery_costs,
+        "Stockout Costs": stock_out_costs,
+        "Total Costs": total_cost
+    }
+
+    return costs
+
+
+def inventory_sim(
+        time_periods: int,
+        starting_inventory: int,
+        rop: int,
+        lead_time: int,
+        per_item_cost: int,
+        holding_costs: float,
+        delivery_cost: int,
+        stock_out_cost: int,
+        demand: list,
+        review_period: int = 1,
+        policy_type: str = "max", # accepts 'max' or 'const' as input
+        max_quantity: int = 10000,
+        constant_quantity: int = 1000
+
+) -> dict:
+    
+    """
+    The function runs a simulation of an SKU inventory given some demand and assuming the specified policy.
+
+    Returns:
+        sim_results (dict) - a nested dictionary 
+    """
+    
+    sim_results = {} # simulation results
+     # delivery arrival time period and size, there might be several deliveries in the pipeline, hence a list is used
+    inventory = starting_inventory
+    t_arrival = []
+    delivery_size = []
+
+    for t in range(time_periods):   
+                
+        d = 0
+        s = 0
+        i = 1
+        order = 0 # order size 
+        
+        # is it review day?
+        if t%review_period == 0:
+            # reorder if inventory below ROP
+            if inventory < rop:
+                d = 1 # indicate an order took place
+                # order up to a point policy
+                if policy_type == "max":
+                    # find order size
+                    order = max_quantity - inventory
+                # order a constant quantiy policy    
+                elif policy_type == "const":
+                    order = constant_quantity
+
+                t_arrival.append(t + lead_time) # order arrival time period
+                delivery_size.append(order) 
+
+        # has there been a stock out?
+        if inventory < 0:
+            s = 1 # indicate there was a stock out
+            i = 0 # indicate there's no stock
+
+        # find the cost 
+        cost = cost_function(
+                            i=i, 
+                            inventory=inventory,
+                            per_item_cost=per_item_cost,
+                            holding_costs=holding_costs,
+                            d=d,
+                            order_size=order,
+                            delivery_cost=delivery_cost,
+                            s=s,
+                            stock_out_cost=stock_out_cost)
+        
+        # save the results 
+        # inventory is recorded at the beginning of the day (following a delivery (if any)) 
+        # demand_t will affect inventory_t+1
+        sim_results["t_" + str(t)] = {
+            "Period": t,
+            "Demand": demand[t],
+            "Inventory": inventory,
+            "Ordered": order,
+            "Carryover Cost": cost["Carryover Cost"],
+            "Delivery Cost": cost["Delivery Cost"],
+            "Stockout Costs": cost["Stockout Costs"],
+            "Total Costs": cost["Total Costs"],
+        }
+        
+        # find next day's inventory
+        # is it delivery day?
+        if (t_arrival[0] if len(t_arrival) != 0 else -1) == t:
+            inventory = inventory - demand[t] + delivery_size[0]
+            # remove from the list 
+            t_arrival.pop(0)
+            delivery_size.pop(0)
+        
+        else:
+            inventory = inventory - demand[t]
+
+    return sim_results
+
+
+
+
