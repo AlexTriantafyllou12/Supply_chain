@@ -26,6 +26,7 @@ demand_mean = [random.randint(300, 600) for i in range(nr_SKUs)]
 demand_sd = [random.randint(50, 100) for i in range(nr_SKUs)]
 
 sim_results = {} # simulation results will go here
+sim_config = {} # simulation configuration data will go here
 
 # generate demand per SKU
 demand = funcs.generate_demand(
@@ -68,47 +69,100 @@ contant_quantity = np.arange(500, 20000, 500)
  # SKU4 = periodic review, constant quantity
 
 policy_types = ["max", "const", "max", "const", "max"]
-
 periodic_review_SKUs = [0, 4]
-continuous_review_SKUs = [1,2,3]
 
-# simulate SKUs with a continous review policy
-for sku in range(len(continuous_review_SKUs)):
-    sku_index = continuous_review_SKUs[sku]
-    sim_results["SKU_"+str(continuous_review_SKUs[sku])] = {}
+# simulate SKUs 
+for sku in range(nr_SKUs):
+
+    sim_results["SKU_"+str(sku)] = {}
+    sim_config["SKU_"+str(sku)] = {}
 
     for s in range(nr_sims):
         # random sampling of max and constant quantity values 
-        max_quantities = [random.choice(max_quantity) for i in range(len(continuous_review_SKUs))]
-        constant_quantities = [random.choice(contant_quantity) for i in range(len(continuous_review_SKUs))]
+        max_quantities = [random.choice(max_quantity) for i in range(nr_SKUs)]
+        constant_quantities = [random.choice(contant_quantity) for i in range(nr_SKUs)]
+
+        if sku in periodic_review_SKUs:
+            # simulate different review periods
+            for s1 in range(nr_sims):
+                # random sampling for review periods 
+                review_periods = [random.choice(periodic_review_periods) for i in range(nr_SKUs)]
+
+                # run the simulation
+                output = funcs.inventory_sim(
+                            time_periods=time_periods,
+                            max_quantity=max_quantities[sku],
+                            review_period=review_periods[sku],
+                            constant_quantity=constant_quantities[sku],
+                            starting_inventory=starting_inventory[sku],
+                            rop=rop[sku],
+                            lead_time=lead_time_mean[sku%2],
+                            per_item_cost=per_item_cost,
+                            holding_costs=holding_costs,
+                            delivery_cost=delivery_cost,
+                            stock_out_cost=stock_out_cost,
+                            demand=demand[sku],
+                            policy_type=policy_types[sku])
+                
+                sim_results["SKU_"+str(sku)]["s_"+str(s*nr_sims + s1)] = output
+                sim_config["SKU_"+str(sku)]["s_"+str(s*nr_sims + s1)] = {
+                    "Simulation": (s*nr_sims + s1),
+                    "Time Periods": time_periods,
+                    "Max Quantity": max_quantities[sku],
+                    "Review Period": review_periods[sku],
+                    "Constant Quantity": constant_quantities[sku],
+                    "Starting Inventory": starting_inventory[sku],
+                    "ROP": rop[sku],
+                    "Lead Time": lead_time_mean[sku%2],
+                    "Policy Type":policy_types[sku] 
+                }          
+
+        else: 
+            # run the simulation for continous review 
+            output = funcs.inventory_sim(
+                        time_periods=time_periods,
+                        max_quantity=max_quantities[sku],
+                        constant_quantity=constant_quantities[sku],
+                        starting_inventory=starting_inventory[sku],
+                        rop=rop[sku],
+                        lead_time=lead_time_mean[sku%2],
+                        per_item_cost=per_item_cost,
+                        holding_costs=holding_costs,
+                        delivery_cost=delivery_cost,
+                        stock_out_cost=stock_out_cost,
+                        demand=demand[sku],
+                        policy_type=policy_types[sku])
         
-        # run the simulation
-        output = funcs.inventory_sim(
-                    time_periods=time_periods,
-                    max_quantity=max_quantities[sku],
-                    constant_quantity=constant_quantities[sku],
-                    starting_inventory=starting_inventory[sku_index],
-                    rop=rop[sku_index],
-                    lead_time=lead_time_mean[sku_index%2],
-                    per_item_cost=per_item_cost,
-                    holding_costs=holding_costs,
-                    delivery_cost=delivery_cost,
-                    stock_out_cost=stock_out_cost,
-                    demand=demand[sku_index],
-                    policy_type=policy_types[sku_index])
-        
-        sim_results["SKU_"+str(continuous_review_SKUs[sku])]["s_"+str(s)] = output
+            sim_results["SKU_"+str(sku)]["s_"+str(s)] = output
+            sim_config["SKU_"+str(sku)]["s_"+str(s)] = {
+                    "Simulation": s,
+                    "Time Periods": time_periods,
+                    "Max Quantity": max_quantities[sku],
+                    "Review Period": review_periods[sku],
+                    "Constant Quantity": constant_quantities[sku],
+                    "Starting Inventory": starting_inventory[sku],
+                    "ROP": rop[sku],
+                    "Lead Time": lead_time_mean[sku%2],
+                    "Policy Type":policy_types[sku] 
+                }   
 
 
-df_output = pd.DataFrame()
+df_output = pd.DataFrame() # simulation results will go here
+df_config = pd.DataFrame() # simulation configuration data will go here
 
-# convert the nested results dicionary into a dataframe
+# convert the nested results and config dicionaries into dataframes
 for key in sim_results.keys():
+    df_c = pd.DataFrame.from_dict(sim_config[key],orient='index')
+    df_c["SKU"] = key
+    df_config = pd.concat([df_config, df_c])
+    
     for sub_key in sim_results[key].keys():
 
-        df =pd.DataFrame.from_dict(sim_results[key][sub_key],orient='index')
+        df = pd.DataFrame.from_dict(sim_results[key][sub_key],orient='index')
         df["Simulation"] = sub_key
         df["SKU"] = key
         df_output = pd.concat([df_output, df])
 
 df_output.to_csv('data/sim_results.csv', index=False)
+df_config.to_csv('data/sim_config.csv', index=False)
+
