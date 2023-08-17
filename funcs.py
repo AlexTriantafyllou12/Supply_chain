@@ -6,18 +6,22 @@ import scipy.stats as stats
 from datetime import datetime
 
 def generate_demand(
-        nr_SKUs: int = 2,
+        nr_SKUs: int = 1,
         time_periods: int = 90,
+        frequency: int = [1],
+        distribution_type: list = ["norm"],
         demand_mean: list = [random.randint(300, 600) for i in range(2)],
         demand_sd: list = [random.randint(50, 100) for i in range(2)]
 ) -> np.array: 
     
     """"
-    The function generates a NumPy list for each SKU with a random daily demand (positive integers with normal distribution).
+    The function generates a NumPy list for each SKU with a random daily demand with the given distribution and frequency (e.g., daily, weekly).
 
     Inputs: 
         nr_SKUs (int) - the number of SKUs a random demand will be generated for
         time_periods (int) - the number of dates to be generated 
+        frequency (int) - demand frequency, e.g., 1 = daily, 7 = weekly, 30 = monthly etc
+        distribution_type (str) - options include "norm", "poisson" and "binomial"
         demand_mean (list) - mean of the generated demand
         demand_sd (list) - standard deviation of the generated mean
 
@@ -29,18 +33,40 @@ def generate_demand(
 
     # generate demand 
     for i in range(nr_SKUs):
-        rand_demand = np.random.normal(
-                                loc=demand_mean[i], 
-                                scale=demand_sd[i], 
-                                size=time_periods)
-        # convert into integers
-        rand_demand = rand_demand.astype(int)
-        # check for negative numbers         
-        min_demand = np.min(rand_demand)
-        # if the distribution has a negative value, shift the whole dataset to the right
-        if min_demand < 0:
-            rand_demand = rand_demand - 2 * min_demand
 
+        match distribution_type[i]:
+            case "norm":
+                rand_demand = np.random.normal(
+                                        loc=demand_mean[i], 
+                                        scale=demand_sd[i], 
+                                        size=time_periods)
+                # convert into integers
+                rand_demand = rand_demand.astype(int)
+                # check for negative numbers     
+                min_demand = np.min(rand_demand)
+                # if the distribution has a negative value, shift the whole dataset to the right
+                if min_demand < 0:
+                    rand_demand = rand_demand - 2 * min_demand
+                    
+            case "poisson":
+                rand_demand = np.random.poisson(
+                                        lam=demand_mean[i], 
+                                        size=time_periods)
+            
+            case "binomial":
+                rand_demand = np.random.binomial(
+                                        n=2,
+                                        p=0.15,
+                                        size=time_periods)
+                # scale the binomial distribution
+                rand_demand = np.array([demand_mean + i*demand_sd for i in rand_demand])
+        
+        # adjust demand frequency     
+        if frequency[i] > 1:
+            for j in range(time_periods):
+                if j%frequency[i] != 0:
+                    rand_demand[j] = 0
+    
         d.append(rand_demand)
 
     demand = np.asarray(d) # convert into a numpy array 
