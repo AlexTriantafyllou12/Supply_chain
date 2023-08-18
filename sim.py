@@ -66,91 +66,6 @@ contant_quantity = np.arange(500, 20000, 500)
 # sampling population for the delivery lead times
 delivery_lead_time = np.arange(2, 14, 1)
 
-#for sample_inventory_policies:
- # SKU0 = periodic review, order up to a point
- # SKU1 = reorder once inventory levels reach reorder point (rop), constant quantity
- # SKU2 = reorder once inventory levels reach rop, order up to a point
- # SKU3 = reorder once inventory levels reach rop, constant quantity
- # SKU4 = periodic review, constant quantity
-
-# policy_types = ["max", "const", "max", "const", "max"]
-# periodic_review_SKUs = [0, 4]
-
-# # simulate SKUs 
-# for sku in range(nr_SKUs):
-
-#     sim_results["SKU_"+str(sku)] = {}
-#     sim_config["SKU_"+str(sku)] = {}
-
-#     for s in range(nr_sims):
-#         # random sampling of max and constant quantity values 
-#         max_quantities = [random.choice(max_quantity) for i in range(nr_SKUs)]
-#         constant_quantities = [random.choice(contant_quantity) for i in range(nr_SKUs)]
-
-#         if sku in periodic_review_SKUs:
-#             # simulate different review periods
-#             for s1 in range(nr_sims):
-#                 # random sampling for review periods 
-#                 review_periods = [random.choice(periodic_review_periods) for i in range(nr_SKUs)]
-
-#                 # run the simulation
-#                 output = funcs.inventory_sim(
-#                             time_periods=time_periods,
-#                             max_quantity=max_quantities[sku],
-#                             review_period=review_periods[sku],
-#                             constant_quantity=constant_quantities[sku],
-#                             starting_inventory=starting_inventory[sku],
-#                             rop=rop[sku],
-#                             lead_time=lead_time_mean[sku%2],
-#                             per_item_cost=per_item_cost,
-#                             holding_costs=holding_costs,
-#                             delivery_cost=delivery_cost,
-#                             stock_out_cost=stock_out_cost,
-#                             demand=demand[sku],
-#                             policy_type=policy_types[sku])
-                
-#                 sim_results["SKU_"+str(sku)]["s_"+str(s*nr_sims + s1)] = output
-#                 sim_config["SKU_"+str(sku)]["s_"+str(s*nr_sims + s1)] = {
-#                     "Simulation": (s*nr_sims + s1),
-#                     "Time Periods": time_periods,
-#                     "Max Quantity": max_quantities[sku],
-#                     "Review Period": review_periods[sku],
-#                     "Constant Quantity": constant_quantities[sku],
-#                     "Starting Inventory": starting_inventory[sku],
-#                     "ROP": rop[sku],
-#                     "Lead Time": lead_time_mean[sku%2],
-#                     "Policy Type":policy_types[sku] 
-#                 }          
-
-#         else: 
-#             # run the simulation for continous review 
-#             output = funcs.inventory_sim(
-#                         time_periods=time_periods,
-#                         max_quantity=max_quantities[sku],
-#                         constant_quantity=constant_quantities[sku],
-#                         starting_inventory=starting_inventory[sku],
-#                         rop=rop[sku],
-#                         lead_time=lead_time_mean[sku%2],
-#                         per_item_cost=per_item_cost,
-#                         holding_costs=holding_costs,
-#                         delivery_cost=delivery_cost,
-#                         stock_out_cost=stock_out_cost,
-#                         demand=demand[sku],
-#                         policy_type=policy_types[sku])
-        
-#             sim_results["SKU_"+str(sku)]["s_"+str(s)] = output
-#             sim_config["SKU_"+str(sku)]["s_"+str(s)] = {
-#                     "Simulation": s,
-#                     "Time Periods": time_periods,
-#                     "Max Quantity": max_quantities[sku],
-#                     "Review Period": review_periods[sku],
-#                     "Constant Quantity": constant_quantities[sku],
-#                     "Starting Inventory": starting_inventory[sku],
-#                     "ROP": rop[sku],
-#                     "Lead Time": lead_time_mean[sku%2],
-#                     "Policy Type":policy_types[sku] 
-#                 }   
-
 sim_results, sim_config = funcs.inventory_sim(
         simulations = nr_sims,
         time_periods = time_periods,
@@ -159,7 +74,7 @@ sim_results, sim_config = funcs.inventory_sim(
         starting_inventory = starting_inventory,
         rop = rop,
         per_item_cost = [[[0, 50, 0.9], [51, 120, 0.7], [121, 1000000, 0.6]], [[0, 50, 0.99], [51, 120, 0.88], [121, 100000, 0.6]], [[0, 100, 0.9], [101, 300, 0.7], [301, 100000, 0.6]], [[0, 100, 0.9], [101, 300, 0.7], [301, 100000, 0.6]], [[0, 100, 0.9], [101, 300, 0.7], [301, 100000, 0.6]]] ,
-        holding_costs = 0.2,
+        holding_costs = 0.9,
         stock_out_cost = 1000000,
         demand=demand,
 )
@@ -171,14 +86,14 @@ df_config = pd.DataFrame() # simulation configuration data will go here
 # convert the nested results and config dicionaries into dataframes
 for key in sim_results.keys():
     df_c = pd.DataFrame.from_dict(sim_config[key],orient='index')
-    df_c["SKU"] = key
+    df_c["Simulation"] = key
     df_config = pd.concat([df_config, df_c])
     
     for sub_key in sim_results[key].keys():
 
         df = pd.DataFrame.from_dict(sim_results[key][sub_key],orient='index')
-        df["Simulation"] = sub_key
-        df["SKU"] = key
+        df["Time Period"] = sub_key
+        df["Simulation Key"] = key
         df_output = pd.concat([df_output, df])
 
 df_output.to_csv('data/sim_results.csv', index=False)
