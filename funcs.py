@@ -176,7 +176,7 @@ def cost_function(
     Returns:
         cost_func (float)
     """
-    carry_over_costs = i * inventory * per_item_cost * holding_costs
+    carry_over_costs = i * inventory * holding_costs
     delivery_costs = d1 * delivery_cost + d2 * per_item_cost * order_size
     stock_out_costs = s * stock_out_cost
     
@@ -219,14 +219,13 @@ def inventory_sim(
     sim_results = {} # simulation results
     sim_config = {} # simulation configuration
      # delivery arrival time period and size, there might be several deliveries in the pipeline, hence a list is used
-    inventory = starting_inventory
     
     for s0 in range(simulations):
         t_arrival = []
         delivery_size = []
         policy_types = ["periodic", "continuous"]
         # select a policy per SKU
-        sku_policies = [policy_types[np.random.randint(0,1)] for i in range(nr_SKUs)]
+        sku_policies = [policy_types[np.random.randint(0,2)] for i in range(nr_SKUs)]
         # select max quantity per sku
         sku_max_quantities = [random.choice(max_quantity) for i in range(nr_SKUs)]
 
@@ -235,6 +234,7 @@ def inventory_sim(
             delivery_size.append([])
         
         for s1 in range(simulations):
+            inventory = starting_inventory.copy()
             sku_review_period = []
             # find a random review period for SKUs with periodic review policy
             for j in range(nr_SKUs):
@@ -248,6 +248,9 @@ def inventory_sim(
             
             for t in range(time_periods):
 
+                sim_results["s_" + str(s0*simulations + s1)]["t_" + str(t)] = {}
+                sim_config["s_" + str(s0*simulations + s1)]["t_" + str(t)] = {}
+                
                 already_ordered = False
                 order_lead_time = 0
                 
@@ -256,6 +259,7 @@ def inventory_sim(
                     d2 = 0
                     s = 0
                     i = 1
+                    sku_cost = 0
                     order = 0 # order size 
                     
                     # is it review day?
@@ -277,20 +281,19 @@ def inventory_sim(
                             t_arrival[sku].append(t + order_lead_time) # order arrival time period
                             delivery_size[sku].append(order) 
 
-                        # has there been a stock out?
-                        if inventory[sku] < 0:
+                                                    # find delivery cost respective or order size items
+                            for c in per_item_cost[sku]:
+                                if order in range(c[0], c[1]):
+                                    sku_cost = c[2]
+                                    break
+
+                    # has there been a stock out?
+                    if inventory[sku] < 0:
                             s = 1 # indicate there was a stock out
                             i = 0 # indicate there's no stock
-                        
-                        # find delivery cost respective or order size items
-                        for c in per_item_cost[sku]:
-                            if order in range(c[0], c[1]):
-                                sku_cost = c[2]
-                                break
 
-
-                        # find the cost 
-                        cost = cost_function(
+                    # find the cost 
+                    cost = cost_function(
                                             i=i, 
                                             inventory=inventory[sku],
                                             per_item_cost=sku_cost,
@@ -305,40 +308,44 @@ def inventory_sim(
                     # save the results 
                     # inventory is recorded at the beginning of the day (following a delivery (if any)) 
                     # demand_t will affect inventory_t+1
-                    sim_results["s_" + str(s0*simulations + s1)]["t_" + str(t)] = {
+                    sim_results["s_" + str(s0*simulations + s1)]["t_" + str(t)]["sku_"+str(sku)] = {
+                        "SKU": sku,
                         "Period": t,
+                        "Simulation": (s0*simulations + s1),
                         "Demand": demand[sku][t],
                         "Inventory": inventory[sku],
                         "Ordered": order,
+                        "Lead Time": order_lead_time,
                         "Carryover Cost": cost["Carryover Cost"],
                         "Delivery Cost": cost["Delivery Cost"],
                         "Stockout Costs": cost["Stockout Costs"],
                         "Total Costs": cost["Total Costs"],
                     }
-
-                    sim_config["s_" + str(s0*simulations + s1)]["t_" + str(t)] = {
-                        "Simulation": (s0*simulations + s1),
-                        "Time Periods": time_periods,
-                        "Max Quantity": sku_max_quantities[sku],
-                        "Review Period": sku_review_period[sku],
-                        "Starting Inventory": starting_inventory[sku],
-                        "ROP": rop[sku],
-                        "Lead Time": order_lead_time,
-                        "Policy Type":sku_policies[sku] 
-                }  
+                    if t == 0:
+                        sim_config["s_" + str(s0*simulations + s1)]["sku_"+str(sku)]  = {
+                            "Simulation": (s0*simulations + s1),
+                            "SKU": sku,
+                            "Time Periods": time_periods,
+                            "Max Quantity": sku_max_quantities[sku],
+                            "Review Period": sku_review_period[sku],
+                            "Starting Inventory": starting_inventory[sku],
+                            "ROP": rop[sku],
+                            "Lead Time": order_lead_time,
+                            "Policy Type":sku_policies[sku] 
+                        }  
         
                     # find next day's inventory
                     # is it delivery day?
                     if t in t_arrival[sku]:    
                         while t in t_arrival[sku]:
                             index = t_arrival[sku].index(t)
-                            inventory = inventory - demand[sku][t] + delivery_size[sku][index]
+                            inventory[sku] = inventory[sku] - demand[sku][t] + delivery_size[sku][index]
                             # remove from the list 
                             t_arrival[sku].pop(index)
                             delivery_size[sku].pop(index)
                     
                     else:
-                        inventory = inventory - demand[sku][t]
+                        inventory[sku] = inventory[sku] - demand[sku][t]
 
     return sim_results, sim_config
 
