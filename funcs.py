@@ -196,6 +196,7 @@ def inventory_sim(
         simulations: int,
         time_periods: int,
         nr_SKUs: int,
+        nr_suppliers: int,
         starting_inventory: list,
         rop: list,
         delivery_cost: int,
@@ -218,134 +219,150 @@ def inventory_sim(
     
     sim_results = {} # simulation results
     sim_config = {} # simulation configuration
-     # delivery arrival time period and size, there might be several deliveries in the pipeline, hence a list is used
+ 
+   # randomly assign SKUs to suppliers
+    SKUs_per_supplier = [[] for sup in range(2)]
+    SKUs = np.arange(0,nr_SKUs,1)
+    random.shuffle(SKUs)
+    while len(SKUs) > 0:
+        for sup in range(nr_suppliers):
+            if (len(SKUs) > 0):
+                SKUs_per_supplier[sup].append(SKUs[0])
+                SKUs = np.delete(SKUs, [0])
+
+    for supplier in range(nr_suppliers):  
+        
+        sim_results["sup_"+str(supplier)] = {}
+        sim_config["sup_"+str(supplier)] = {}      
     
-    for s0 in range(simulations):
-        t_arrival = []
-        delivery_size = []
-        policy_types = ["periodic", "continuous"]
-        # select a policy per SKU
-        sku_policies = [policy_types[np.random.randint(0,2)] for i in range(nr_SKUs)]
-        # select max quantity per sku
-        sku_max_quantities = [random.choice(max_quantity) for i in range(nr_SKUs)]
+        for s0 in range(simulations):
+            # delivery arrival time period and size, there might be several deliveries in the pipeline, hence a list is used
+            t_arrival = []
+            delivery_size = []
+            policy_types = ["periodic", "continuous"]
+            # select a policy per SKU
+            sku_policies = [policy_types[np.random.randint(0,2)] for i in range(nr_SKUs)]
+            # select max quantity per sku
+            sku_max_quantities = [random.choice(max_quantity) for i in range(nr_SKUs)]
 
-        for i in range(nr_SKUs):
-            t_arrival.append([])
-            delivery_size.append([])
-        
-        for s1 in range(simulations):
-            inventory = starting_inventory.copy()
-            sku_review_period = []
-            # find a random review period for SKUs with periodic review policy
-            for j in range(nr_SKUs):
-                if sku_policies[j] == policy_types[0]:
-                    sku_review_period.append(random.choice(review_period))
-                else:
-                    sku_review_period.append(1)
+            for i in range(nr_SKUs):
+                t_arrival.append([])
+                delivery_size.append([])
             
-            sim_results["s_" + str(s0*simulations + s1)] = {}
-            sim_config["s_" + str(s0*simulations + s1)] = {}
-            
-            for t in range(time_periods):
-
-                sim_results["s_" + str(s0*simulations + s1)]["t_" + str(t)] = {}
-                sim_config["s_" + str(s0*simulations + s1)]["t_" + str(t)] = {}
-                
-                already_ordered = False
-                order_lead_time = 0
-                
-                for sku in range(nr_SKUs):
-                    d1 = 0
-                    d2 = 0
-                    s = 0
-                    i = 1
-                    sku_cost = 0
-                    order = 0 # order size 
-                    
-                    # is it review day?
-                    if t%sku_review_period[sku] == 0:
-
-                        # reorder if inventory below ROP
-                        if inventory[sku] < rop[sku]:
-
-                            d1 = 0 if already_ordered else 1 # check if delivery costs need to be accounted for
-                            d2 = 1 # indicate an order took place
-        
-                            # find order size
-                            order = sku_max_quantities[sku] - inventory[sku]
-                            
-                            if not already_ordered:
-                                order_lead_time = random.choice(lead_time)
-                                already_ordered = True
-  
-                            t_arrival[sku].append(t + order_lead_time) # order arrival time period
-                            delivery_size[sku].append(order) 
-
-                                                    # find delivery cost respective or order size items
-                            for c in per_item_cost[sku]:
-                                if order in range(c[0], c[1]):
-                                    sku_cost = c[2]
-                                    break
-
-                    # has there been a stock out?
-                    if inventory[sku] < 0:
-                            s = 1 # indicate there was a stock out
-                            i = 0 # indicate there's no stock
-
-                    # find the cost 
-                    cost = cost_function(
-                                            i=i, 
-                                            inventory=inventory[sku],
-                                            per_item_cost=sku_cost,
-                                            holding_costs=holding_costs,
-                                            d1=d1,
-                                            d2=d2,
-                                            order_size=order,
-                                            delivery_cost=delivery_cost,
-                                            s=s,
-                                            stock_out_cost=stock_out_cost)
-        
-                    # save the results 
-                    # inventory is recorded at the beginning of the day (following a delivery (if any)) 
-                    # demand_t will affect inventory_t+1
-                    sim_results["s_" + str(s0*simulations + s1)]["t_" + str(t)]["sku_"+str(sku)] = {
-                        "SKU": sku,
-                        "Period": t,
-                        "Simulation": (s0*simulations + s1),
-                        "Demand": demand[sku][t],
-                        "Inventory": inventory[sku],
-                        "Ordered": order,
-                        "Lead Time": order_lead_time,
-                        "Carryover Cost": cost["Carryover Cost"],
-                        "Delivery Cost": cost["Delivery Cost"],
-                        "Stockout Costs": cost["Stockout Costs"],
-                        "Total Costs": cost["Total Costs"],
-                    }
-                    if t == 0:
-                        sim_config["s_" + str(s0*simulations + s1)]["sku_"+str(sku)]  = {
-                            "Simulation": (s0*simulations + s1),
-                            "SKU": sku,
-                            "Time Periods": time_periods,
-                            "Max Quantity": sku_max_quantities[sku],
-                            "Review Period": sku_review_period[sku],
-                            "Starting Inventory": starting_inventory[sku],
-                            "ROP": rop[sku],
-                            "Lead Time": order_lead_time,
-                            "Policy Type":sku_policies[sku] 
-                        }  
-        
-                    # find next day's inventory
-                    # is it delivery day?
-                    if t in t_arrival[sku]:    
-                        while t in t_arrival[sku]:
-                            index = t_arrival[sku].index(t)
-                            inventory[sku] = inventory[sku] - demand[sku][t] + delivery_size[sku][index]
-                            # remove from the list 
-                            t_arrival[sku].pop(index)
-                            delivery_size[sku].pop(index)
-                    
+            for s1 in range(simulations):
+                inventory = starting_inventory.copy()
+                sku_review_period = []
+                # find a random review period for SKUs with periodic review policy
+                for j in range(nr_SKUs):
+                    if sku_policies[j] == policy_types[0]:
+                        sku_review_period.append(random.choice(review_period))
                     else:
-                        inventory[sku] = inventory[sku] - demand[sku][t]
+                        sku_review_period.append(1)
+                
+                sim_results["sup_"+str(supplier)]["s_" + str(s0*simulations + s1)] = {}
+                sim_config["sup_"+str(supplier)]["s_" + str(s0*simulations + s1)] = {}
+                
+                for t in range(time_periods):
+
+                    sim_results["sup_"+str(supplier)]["s_" + str(s0*simulations + s1)]["t_" + str(t)] = {}
+                    sim_config["sup_"+str(supplier)]["s_" + str(s0*simulations + s1)]["t_" + str(t)] = {}
+                    
+                    already_ordered = False
+                    order_lead_time = 0
+                    
+                    for sku in SKUs_per_supplier[supplier]:
+                        d1 = 0
+                        d2 = 0
+                        s = 0
+                        i = 1
+                        sku_cost = 0
+                        order = 0 # order size 
+                        
+                        # is it review day?
+                        if t%sku_review_period[sku] == 0:
+
+                            # reorder if inventory below ROP
+                            if inventory[sku] < rop[sku]:
+
+                                d1 = 0 if already_ordered else 1 # check if delivery costs need to be accounted for
+                                d2 = 1 # indicate an order took place
+            
+                                # find order size
+                                order = sku_max_quantities[sku] - inventory[sku]
+                                
+                                if not already_ordered:
+                                    order_lead_time = random.choice(lead_time)
+                                    already_ordered = True
+    
+                                t_arrival[sku].append(t + order_lead_time) # order arrival time period
+                                delivery_size[sku].append(order) 
+
+                                                        # find delivery cost respective or order size items
+                                for c in per_item_cost[sku]:
+                                    if order in range(c[0], c[1]):
+                                        sku_cost = c[2]
+                                        break
+
+                        # has there been a stock out?
+                        if inventory[sku] < 0:
+                                s = 1 # indicate there was a stock out
+                                i = 0 # indicate there's no stock
+
+                        # find the cost 
+                        cost = cost_function(
+                                                i=i, 
+                                                inventory=inventory[sku],
+                                                per_item_cost=sku_cost,
+                                                holding_costs=holding_costs,
+                                                d1=d1,
+                                                d2=d2,
+                                                order_size=order,
+                                                delivery_cost=delivery_cost,
+                                                s=s,
+                                                stock_out_cost=stock_out_cost)
+            
+                        # save the results 
+                        # inventory is recorded at the beginning of the day (following a delivery (if any)) 
+                        # demand_t will affect inventory_t+1
+                        sim_results["sup_"+str(supplier)]["s_" + str(s0*simulations + s1)]["t_" + str(t)]["sku_"+str(sku)] = {
+                            "SKU": sku,
+                            "Period": t,
+                            "Simulation": (s0*simulations + s1),
+                            "Supplier": supplier,
+                            "Demand": demand[sku][t],
+                            "Inventory": inventory[sku],
+                            "Ordered": order,
+                            "Lead Time": order_lead_time,
+                            "Carryover Cost": cost["Carryover Cost"],
+                            "Delivery Cost": cost["Delivery Cost"],
+                            "Stockout Costs": cost["Stockout Costs"],
+                            "Total Costs": cost["Total Costs"],
+                        }
+                        if t == 0:
+                            sim_config["sup_"+str(supplier)]["s_" + str(s0*simulations + s1)]["sku_"+str(sku)]  = {
+                                "Simulation": (s0*simulations + s1),
+                                "SKU": sku,
+                                "Time Periods": time_periods,
+                                "Max Quantity": sku_max_quantities[sku],
+                                "Review Period": sku_review_period[sku],
+                                "Starting Inventory": starting_inventory[sku],
+                                "ROP": rop[sku],
+                                "Lead Time": order_lead_time,
+                                "Policy Type":sku_policies[sku] 
+                            }  
+            
+                        # find next day's inventory
+                        # is it delivery day?
+                        if t in t_arrival[sku]:    
+                            while t in t_arrival[sku]:
+                                index = t_arrival[sku].index(t)
+                                inventory[sku] = inventory[sku] - demand[sku][t] + delivery_size[sku][index]
+                                # remove from the list 
+                                t_arrival[sku].pop(index)
+                                delivery_size[sku].pop(index)
+                        
+                        else:
+                            inventory[sku] = inventory[sku] - demand[sku][t]
 
     return sim_results, sim_config
 

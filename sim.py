@@ -13,6 +13,8 @@ lead_time_mean = np.array(list(global_variables['lead_time_mean']), dtype=int)
 lead_time_sd = np.array(list(global_variables['lead_time_sd']), dtype=int)
 
 nr_SKUs = int(global_variables['nr_SKUs'])
+nr_suppliers = int(global_variables['nr_suppliers'])
+
 nr_sims = int(global_variables['nr_sims'])
 
 holding_costs = float(global_variables['holding_costs']) # percent of the total cost of the item stored
@@ -71,6 +73,7 @@ sim_results, sim_config = funcs.inventory_sim(
         time_periods = time_periods,
         delivery_cost=delivery_cost,
         nr_SKUs = nr_SKUs,
+        nr_suppliers=nr_suppliers,
         starting_inventory = starting_inventory,
         rop = rop,
         per_item_cost = [[[0, 50, 0.9], [51, 120, 0.7], [121, 1000000, 0.6]], [[0, 50, 0.99], [51, 120, 0.88], [121, 100000, 0.6]], [[0, 100, 0.9], [101, 300, 0.7], [301, 100000, 0.6]], [[0, 100, 0.9], [101, 300, 0.7], [301, 100000, 0.6]], [[0, 100, 0.9], [101, 300, 0.7], [301, 100000, 0.6]]] ,
@@ -83,18 +86,16 @@ sim_results, sim_config = funcs.inventory_sim(
 df_output = pd.DataFrame() # simulation results will go here
 df_config = pd.DataFrame() # simulation configuration data will go here
 
-# convert the nested results and config dicionaries into dataframes
 for key in sim_results.keys():
-    df_c = pd.DataFrame.from_dict(sim_config[key],orient='index')
-    df_c["Simulation"] = key
-    df_config = pd.concat([df_config, df_c])
-    
+    # convert the nested results and config dicionaries into dataframes
     for sub_key in sim_results[key].keys():
+        df_c = pd.DataFrame.from_dict(sim_config[key][sub_key],orient='index')
+        df_config = pd.concat([df_config, df_c])
+        
+        for sub_sub_key in sim_results[key][sub_key].keys():
 
-        df = pd.DataFrame.from_dict(sim_results[key][sub_key],orient='index')
-        df["Time Period"] = sub_key
-        df["Simulation Key"] = key
-        df_output = pd.concat([df_output, df])
+            df = pd.DataFrame.from_dict(sim_results[key][sub_key][sub_sub_key],orient='index')
+            df_output = pd.concat([df_output, df])
 
 df_output.to_csv('data/sim_results.csv', index=False)
 df_config.to_csv('data/sim_config.csv', index=False)
