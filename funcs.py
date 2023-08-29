@@ -3,7 +3,7 @@ import random
 import pandas as pd
 import numpy as np
 import scipy.stats as stats
-from datetime import datetime
+from scipy.stats import halfnorm
 
 def generate_demand(
         nr_SKUs: int = 1,
@@ -204,7 +204,7 @@ def inventory_sim(
         holding_costs: float,
         stock_out_cost: int,
         demand: list,
-        lead_time: list = np.arange(2, 14, 1),
+        lead_time: list = np.array(halfnorm.rvs(loc = 3, scale = 3, size=50), dtype=int),
         review_period: list = np.arange(2, 30, 1),
         max_quantity: list = np.arange(4000, 20000, 500),
 
@@ -230,10 +230,7 @@ def inventory_sim(
                 SKUs_per_supplier[sup].append(SKUs[0])
                 SKUs = np.delete(SKUs, [0])
 
-    for supplier in range(nr_suppliers):  
-        
-        sim_results["sup_"+str(supplier)] = {}
-        sim_config["sup_"+str(supplier)] = {}      
+    for supplier in range(nr_suppliers):    
     
         for s0 in range(simulations):
             # delivery arrival time period and size, there might be several deliveries in the pipeline, hence a list is used
@@ -258,14 +255,9 @@ def inventory_sim(
                         sku_review_period.append(random.choice(review_period))
                     else:
                         sku_review_period.append(1)
-                
-                sim_results["sup_"+str(supplier)]["s_" + str(s0*simulations + s1)] = {}
-                sim_config["sup_"+str(supplier)]["s_" + str(s0*simulations + s1)] = {}
+            
                 
                 for t in range(time_periods):
-
-                    sim_results["sup_"+str(supplier)]["s_" + str(s0*simulations + s1)]["t_" + str(t)] = {}
-                    sim_config["sup_"+str(supplier)]["s_" + str(s0*simulations + s1)]["t_" + str(t)] = {}
                     
                     already_ordered = False
                     order_lead_time = 0
@@ -324,7 +316,8 @@ def inventory_sim(
                         # save the results 
                         # inventory is recorded at the beginning of the day (following a delivery (if any)) 
                         # demand_t will affect inventory_t+1
-                        sim_results["sup_"+str(supplier)]["s_" + str(s0*simulations + s1)]["t_" + str(t)]["sku_"+str(sku)] = {
+                        sim_results["sup_"+str(supplier)+ "_s_" + str(s0*simulations + s1) + "_t_" + str(t) + "_sku_"+str(sku)] = {
+                            "ID": str(sku) + "_" + str(s0*simulations + s1),
                             "SKU": sku,
                             "Period": t,
                             "Simulation": (s0*simulations + s1),
@@ -339,7 +332,8 @@ def inventory_sim(
                             "Total Costs": cost["Total Costs"],
                         }
                         if t == 0:
-                            sim_config["sup_"+str(supplier)]["s_" + str(s0*simulations + s1)]["sku_"+str(sku)]  = {
+                            sim_config["sup_"+str(supplier) + "_s_" + str(s0*simulations + s1) + "_sku_"+str(sku)]  = {
+                                "ID": str(sku) + "_" + str(s0*simulations + s1),
                                 "Simulation": (s0*simulations + s1),
                                 "SKU": sku,
                                 "Time Periods": time_periods,
@@ -363,6 +357,8 @@ def inventory_sim(
                         
                         else:
                             inventory[sku] = inventory[sku] - demand[sku][t]
+                        
+                print("Simulation {} complete.".format((s0*simulations + s1)))
 
     return sim_results, sim_config
 
