@@ -84,3 +84,15 @@ The following section describes the simulated scenario and highlights the use of
     -	Find the daily total cost: 
         -	`Utility.cost_function()`
 
+### Assumptions 
+
+The following assumptions have been made in creating the simulation:
+-	Some chemicals are used more frequently than others (demand variability).
+-	Each chemical has a set reorder point (ROP) and safety stock (SS) modelled based on the assumed uncertainty of the demand and supplier lead times.
+-	Suppliers have different lead times – these are not always constant and there is uncertainty involved.
+-	Suppliers have a constant delivery fee regardless of the size of the order.
+-	Suppliers offer different quotas based on the number of units ordered – the higher the number the lesser the per unit cost.
+-	Chemicals are stored in warehouses, up until they are used.
+-	We consider a ‘holding’ cost for each period that an invenotry is stored that consists of a fixed warehouse holding cost and a fee per each item stored.
+-	The holding cost includes space, work capital, etc. 
+
