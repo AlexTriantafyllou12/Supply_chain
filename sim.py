@@ -82,20 +82,26 @@ sim_results, sim_config = funcs.inventory_sim(
         demand=demand,
 )
 
+df_output = pd.DataFrame.from_dict(sim_results,orient='index') # simulation results will go here
+df_config = pd.DataFrame.from_dict(sim_config,orient='index') # simulation configuration data will go here
 
-df_output = pd.DataFrame() # simulation results will go here
-df_config = pd.DataFrame() # simulation configuration data will go here
+df_total_cost_by_sim = df_output.groupby("Simulation", as_index=False)["Total Costs"].sum()
+df_total_cost_by_sim["Rank Based on Cost"] = df_total_cost_by_sim["Total Costs"].rank(ascending=True)
+df_total_cost_by_sim = df_total_cost_by_sim.rename(columns={"Total Costs": "Total Costs By Sim"})
 
-for key in sim_results.keys():
-    # convert the nested results and config dicionaries into dataframes
-    for sub_key in sim_results[key].keys():
-        df_c = pd.DataFrame.from_dict(sim_config[key][sub_key],orient='index')
-        df_config = pd.concat([df_config, df_c])
-        
-        for sub_sub_key in sim_results[key][sub_key].keys():
+df_stockout = df_output.groupby("Simulation", as_index=False)["Stockout Costs"].sum()
+df_stockout["Did Stock Out"] = df_stockout["Stockout Costs"].apply(lambda x: True if x > 0 else False)
+df_stockout = df_stockout.drop(columns=["Stockout Costs"])
 
-            df = pd.DataFrame.from_dict(sim_results[key][sub_key][sub_sub_key],orient='index')
-            df_output = pd.concat([df_output, df])
+df_output["Lead Time Nan"] = df_output["Lead Time"].apply(lambda x: np.NaN if x == 0 else x)
+df_lead_time = df_output.groupby("Simulation", as_index=False)["Lead Time Nan"].mean()
+df_lead_time = df_lead_time.rename(columns={"Lead Time Nan": "Average Lead Time Sim"})
+
+df_output = df_output.drop(columns=["Lead Time Nan"])
+df_output = pd.merge(df_output, df_stockout, how="left", on="Simulation")
+df_output = pd.merge(df_output, df_total_cost_by_sim, how="left", on="Simulation")
+df_output = pd.merge(df_output, df_lead_time, how="left", on="Simulation")
+#print(df_output)
 
 df_output.to_csv('data/sim_results.csv', index=False)
 df_config.to_csv('data/sim_config.csv', index=False)
