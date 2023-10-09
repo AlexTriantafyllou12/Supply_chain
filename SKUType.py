@@ -3,7 +3,7 @@ import random
 import numpy as np
 import scipy.stats as stats
 
-class SKU:
+class SKUType:
 
     starting_inventory = random.randint(100, 500)
 
