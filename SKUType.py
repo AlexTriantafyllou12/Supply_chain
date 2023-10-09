@@ -1,6 +1,7 @@
 import math
 import random
 import numpy as np
+import Utility as u
 import scipy.stats as stats
 
 class SKUType:
@@ -46,37 +47,30 @@ class SKUType:
         if value == "continous":
             self.set_review_period(1) 
     
-    def check_integer_input(func):
-        def wrapper(self, input):
-            if not isinstance(input, int) or input <= 0:
-                raise ValueError("Expected a positive integer value")
 
-            func(self, input)
-        return wrapper
-
-    @check_integer_input
+    @u.check_integer_input
     def set_review_period(self, value) -> None:
         if self.policy_type == "continous" and value != 1:
             raise ValueError("Review period must be 1 for continous policies")
         
         self.review_period = value
     
-    @check_integer_input
+    @u.check_integer_input
     def set_max_quantity(self, value) -> None:
         self.max_quantity = value
 
-    @check_integer_input
+    @u.check_integer_input
     def set_actual_inventory(self, value) -> None:
         self.actual_invenotry = value
 
-    @check_integer_input
+    @u.check_integer_input
     def set_estimated_invenotry(self, value) -> None:
         self.estimated_invenotry = value    
 
     def set_demand(self, value) -> None:
         self.demand = value
 
-    @check_integer_input
+    @u.check_integer_input
     def set_rop(self, value) -> None:
         self.rop = value
 
