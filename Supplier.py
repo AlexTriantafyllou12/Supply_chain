@@ -24,7 +24,7 @@ class Supplier:
         
         # item is not delivered by the supplier
         if item not in self.items_delivered.keys():
-            return None 
+            return 0 
         # find the item's base price
         base_price = quantity * self.items_delivered[item]["price_per_item"]
         discount = 0
