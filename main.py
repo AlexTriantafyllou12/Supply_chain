@@ -17,6 +17,7 @@ time_periods = int(global_variables['time_periods'])
 skus = []
 suppliers = []
 
+# define SKUs
 for s in range(nr_SKUs):
     sku_name = "SKU{}".format(s)
     starting_inventory = random.randint(100, 500)
@@ -32,7 +33,8 @@ for s in range(nr_SKUs):
     demand = sku.generate_demand()
     sku.set_demand(demand)
     skus.append(sku)
-print("SKUs set up")
+
+# define suppliers
 supplier_1 = Supplier.Supplier(name="Supplier1",
                       items_delivered={"SKU1": {"price_per_item": 100, "discount": {10: 100, 25: 300}}, "SKU2": {"price_per_item": 100, "discount": {10: 150, 20: 300, 30:400}}, "SKU0": {"price_per_item": 40, "discount": {10: 150, 20: 300, 30:400}}},
                       delivery_cost=300,
@@ -48,7 +50,7 @@ supplier_2 = Supplier.Supplier(name="Supplier2",
 suppliers.append(supplier_1)
 suppliers.append(supplier_2)
 
-print("Suppliers set up")
+# define the warehouse
 warehouse = Warehouse.Warehouse(max_capacity=10000,
                       current_capacity=100,
                       maintenance_cost=1000)
@@ -57,10 +59,10 @@ warehouse = Warehouse.Warehouse(max_capacity=10000,
 solution_generator = SolutionsGenerator.SolutionGenerator(nr_periods=time_periods,
                                         nr_skus=nr_SKUs)
 
-print("Solution instatiated")
+# define the solution
 meta_data, solution = solution_generator.generate_random_solution(skus=skus,
                                                        suppliers=suppliers,
                                                        warehouse=warehouse)
-print("Solution generated")
+
 print(solution)
 print(meta_data)
