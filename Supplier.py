@@ -40,10 +40,3 @@ class Supplier:
         sku_price = base_price * (100 - discount) / 100
 
         return sku_price    
-
-items_delivered = {"SKU1": {"price_per_item": 100, "discount": {10: 100, 25: 300}}, "SKU2": {"price_per_item": 100, "discount": {10: 150, 20: 300, 30:400}}}
-
-sup = Supplier("Sup1", items_delivered, 100, 4, 4)
-
-lead_time = sup.find_sku_price("SKU1", 90)
-print(lead_time)
