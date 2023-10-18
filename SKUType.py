@@ -6,13 +6,11 @@ import scipy.stats as stats
 
 class SKUType:
 
-    starting_inventory = random.randint(100, 500)
-
     def __init__(self,
                  name,
                  holding_cost,
-                 actual_invenotry=starting_inventory,
-                 estimated_invenotry=starting_inventory, 
+                 actual_inventory,
+                 estimated_inventory, 
                  demand=None,
                  policy_type=None,
                  review_period=1, 
@@ -20,13 +18,13 @@ class SKUType:
                  rop=None, 
                  lead_time_mean=random.randint(1, 5),
                  lead_time_sd=random.randint(1, 3),
-                 demand_mean = random.randint(100, 500),
-                 demand_sd = random.randint(10, 50)) -> None:
+                 demand_mean = random.randint(30, 100),
+                 demand_sd = random.randint(4, 20)) -> None:
         
         self.name = name
         self.holding_cost = holding_cost
-        self.actual_invenotry = actual_invenotry
-        self.estimated_invenotry = estimated_invenotry
+        self.actual_inventory = actual_inventory
+        self.estimated_inventory = estimated_inventory
         self.demand = demand
         self.policy_type = policy_type
         self.review_period = review_period
@@ -64,7 +62,7 @@ class SKUType:
         self.actual_invenotry = value
 
     @u.check_integer_input
-    def set_estimated_invenotry(self, value) -> None:
+    def set_estimated_inventory(self, value) -> None:
         self.estimated_invenotry = value    
 
     def set_demand(self, value) -> None:
@@ -98,9 +96,6 @@ class SKUType:
 
             # find the reorder point
             reorder_point = self.lead_time_mean*self.demand_mean + safety_stock
-
-            if isinstance(self.max_quantity, int) and reorder_point > self.max_quantity:
-                raise Exception("Reordering point is larger than the maximum quantity of the SKU stored.")
 
             return reorder_point
 
