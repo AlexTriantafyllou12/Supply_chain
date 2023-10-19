@@ -24,7 +24,7 @@ class Warehouse:
             # find the allocation per item
             allocated_q = random.randint(1, max_capacity - nr_skus + i - 1)
             # ensure an item doesn't take up more than half the warehouse
-            while max_capacity/allocated_q < 0.3:
+            while allocated_q/max_capacity > 0.5:
                 allocated_q = random.randint(1, max_capacity - nr_skus + i - 1)
             
             # update the maximum capacity
