@@ -59,11 +59,11 @@ class SKUType:
 
     @u.check_integer_input
     def set_actual_inventory(self, value) -> None:
-        self.actual_invenotry = value
+        self.actual_inventory = value
 
     @u.check_integer_input
     def set_estimated_inventory(self, value) -> None:
-        self.estimated_invenotry = value    
+        self.estimated_inventory = value    
 
     def set_demand(self, value) -> None:
         self.demand = value

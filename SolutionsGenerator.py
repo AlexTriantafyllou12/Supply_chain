@@ -39,19 +39,16 @@ class SolutionGenerator:
             sku.set_max_quantity(space_allocations[i])
             # set a random review period
             sku.set_review_period(random.choice(review_periods))
-            rop=sku.rop
-            # ensure rop does not exceed the max quantity for the SKU
-            while rop is None or rop > sku.max_quantity:
-                rop =sku.find_rop()
-                print(rop)
-            
+            rop=sku.find_rop()
             sku.set_rop(rop)
+            # ensure rop does not exceed the max quantity for the SKU
+            if rop > sku.max_quantity:
+                sku.set_rop(int(sku.max_quantity/2))
             
             meta_data.append([sku.rop, sku.max_quantity, sku.review_period])
 
-            print('SKU: {}, ROP: {}, Max_q: {}, Lead_time {}'.format(sku.name, sku.rop, sku.max_quantity, sku.lead_time_mean))
+            print('SKU: {}, ROP: {}, Max_q: {}, Lead_time {}, Review Period {}'.format(sku.name, sku.rop, sku.max_quantity, sku.lead_time_mean, sku.review_period))
          
-
         solution = []
         orders = []
 
@@ -61,11 +58,15 @@ class SolutionGenerator:
             to_be_ordered = []
 
             # check for deliveries 
-            for ord in orders:
+            for ord_i, ord in enumerate(orders):
                 if ord.delivery_day == p:
 
                     for sk_i, sk in enumerate(ord.SKUs):
-                        sk.set_actual_inventory(ord.quantity[sk_i])
+                        actual_invenotry = sk.actual_inventory + ord.quantity[sk_i]
+                        sk.set_actual_inventory(actual_invenotry if actual_invenotry <= sk.max_quantity else sk.max_quantity)
+                    
+                    # remove the delivered order from the list
+                    orders.pop(ord_i)
 
             for s_i, s in enumerate(skus):
                 qantity_to_order = 0
@@ -74,7 +75,7 @@ class SolutionGenerator:
                 if p % s.review_period == 0:
                     
                     # is estimated inventory below ROP?
-                    if s.rop < s.estimated_inventory:
+                    if s.rop > s.estimated_inventory:
                         
                         # how much stock will be required to fullfill demnad before the order arrives?
                         upcoming_demand = sum(s.demand[p:(p + s.lead_time_mean + 1)])
@@ -83,51 +84,58 @@ class SolutionGenerator:
                         # ensure the quantity ordered doesn't exceed max quantity 
                         qantity_to_order = qantity_to_order if qantity_to_order < s.max_quantity else s.max_quantity
 
-                        to_be_ordered.append([s, qantity_to_order])
                         # update the estimated inventory
-                        s.set_estimated_inventory(s.estimated_inventory + qantity_to_order)
-                    
-                    else:
-                        to_be_ordered.append([s, 0])
+                        s.set_estimated_inventory(s.estimated_inventory + qantity_to_order)           
+                
+                to_be_ordered.append([s_i, s, qantity_to_order])
 
                 solution[p].append([s.actual_inventory, qantity_to_order])
                 
+                # account for the daily demand
                 daily_demand = s.demand[p]
-                s.set_estimated_inventory(int(s.estimated_inventory - daily_demand))
-                s.set_actual_inventory(int(s.actual_inventory - daily_demand))
+                estimated_inventory= int(s.estimated_inventory - daily_demand)
+                actual_invenotry = int(s.actual_inventory - daily_demand)
+                # ensure negative values are not passed in case of a stockout
+                s.set_estimated_inventory(estimated_inventory if estimated_inventory >= 0 else 0)
+                s.set_actual_inventory(actual_invenotry if actual_invenotry >= 0 else 0)
 
             # assign items to suppliers and place orders
             # randomly shuffle suppliers 
             random.shuffle(suppliers)
+            already_ordered = [] # items already ordered from one of the suppliers go here
 
             for supplier in suppliers:
-                items = []
-                quantities = []
-                prices = []
+                items = [] # items to be ordered from the suppliers go here
+                quantities = [] # quanities to be ordered go here
+                prices = [] # price per item go here
+       
+                for o in to_be_ordered:
 
-                for o_i, o in enumerate(to_be_ordered):
-                    item = o[0]
-                    quantity = o[1]
+                    item = o[1]
+                    quantity = o[2]
                     item_price = 0
                     item_supplied_by = 0
 
-                    if quantity != 0:
-                        item_price  = supplier.find_sku_price(item.name, quantity)
+                    if item not in already_ordered: 
+                        if quantity != 0:       
+                            item_price  = supplier.find_sku_price(item.name, quantity)
 
-                        # assign item if it's delivered by the supplier
-                        if item_price != 0:
-                            item_supplied_by = supplier.name 
-                            items.append(item)
-                            quantities.append(quantity)
-                            prices.append(item_price)
+                            # assign item if it's delivered by the supplier
+                            if item_price != 0:
+                                item_supplied_by = supplier.name 
+                                items.append(item)
+                                quantities.append(quantity)
+                                prices.append(item_price)
+                                
+                        already_ordered.append(item)
 
-                            to_be_ordered.pop(o_i)
-
-                    new_order = Order.Order(items, quantities, prices, supplier.delivery_cost, p+supplier.lead_time)
-                    orders.append(new_order)
-
-                    solution[p][o_i].append(item_supplied_by)
-                    solution[p][o_i].append(item_price)
+                        solution[p][o[0]].append(item_supplied_by)
+                        solution[p][o[0]].append(item_price)
+                
+                # place an order with the supplier
+                new_order = Order.Order(items, quantities, prices, supplier.delivery_cost, p+supplier.lead_time)
+                orders.append(new_order)
+                        
 
         return meta_data, solution
 
