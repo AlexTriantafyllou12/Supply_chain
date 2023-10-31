@@ -1,17 +1,16 @@
 import math
 import random
 import numpy as np
+import Utility as u
 import scipy.stats as stats
 
-class SKU:
-
-    starting_inventory = random.randint(100, 500)
+class SKUType:
 
     def __init__(self,
                  name,
                  holding_cost,
-                 actual_invenotry=starting_inventory,
-                 estimated_invenotry=starting_inventory, 
+                 actual_inventory,
+                 estimated_inventory, 
                  demand=None,
                  policy_type=None,
                  review_period=1, 
@@ -19,13 +18,13 @@ class SKU:
                  rop=None, 
                  lead_time_mean=random.randint(1, 5),
                  lead_time_sd=random.randint(1, 3),
-                 demand_mean = random.randint(100, 500),
-                 demand_sd = random.randint(10, 50)) -> None:
+                 demand_mean = random.randint(30, 100),
+                 demand_sd = random.randint(4, 20)) -> None:
         
         self.name = name
         self.holding_cost = holding_cost
-        self.actual_invenotry = actual_invenotry
-        self.estimated_invenotry = estimated_invenotry
+        self.actual_inventory = actual_inventory
+        self.estimated_inventory = estimated_inventory
         self.demand = demand
         self.policy_type = policy_type
         self.review_period = review_period
@@ -46,37 +45,30 @@ class SKU:
         if value == "continous":
             self.set_review_period(1) 
     
-    def check_integer_input(func):
-        def wrapper(self, input):
-            if not isinstance(input, int) or input <= 0:
-                raise ValueError("Expected a positive integer value")
 
-            func(self, input)
-        return wrapper
-
-    @check_integer_input
+    @u.check_integer_input
     def set_review_period(self, value) -> None:
         if self.policy_type == "continous" and value != 1:
             raise ValueError("Review period must be 1 for continous policies")
         
         self.review_period = value
     
-    @check_integer_input
+    @u.check_integer_input
     def set_max_quantity(self, value) -> None:
         self.max_quantity = value
 
-    @check_integer_input
+    @u.check_integer_input
     def set_actual_inventory(self, value) -> None:
-        self.actual_invenotry = value
+        self.actual_inventory = value
 
-    @check_integer_input
-    def set_estimated_invenotry(self, value) -> None:
-        self.estimated_invenotry = value    
+    @u.check_integer_input
+    def set_estimated_inventory(self, value) -> None:
+        self.estimated_inventory = value    
 
     def set_demand(self, value) -> None:
         self.demand = value
 
-    @check_integer_input
+    @u.check_integer_input
     def set_rop(self, value) -> None:
         self.rop = value
 
@@ -104,9 +96,6 @@ class SKU:
 
             # find the reorder point
             reorder_point = self.lead_time_mean*self.demand_mean + safety_stock
-
-            if isinstance(self.max_quantity, int) and reorder_point > self.max_quantity:
-                raise Exception("Reordering point is larger than the maximum quantity of the SKU stored.")
 
             return reorder_point
 
