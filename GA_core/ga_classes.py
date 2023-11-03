@@ -5,26 +5,51 @@ class ProgressObserver:
 
 
 class Genetic_Algorithm:
+    """
+    gene = policy (per SKU)
+
+    chromosome = individual solution (e.g., for 100 SKUs, max 100 policies)
+
+    population = a number of chromosomes
+    """
 
     def __init__(self) -> None:
         self.observers = []
         
         def create_population(self) -> None:
+            """
+            create some number of Individual_Solution objects
+            """
             pass
         
         def evaluate_population(self) -> None:
+            """
+            find the fitness of each chromosome (i.e., the cost function)
+            """
             pass
 
         def select_parents(self) -> None:
+            """
+            select parent chromosomes for a crossover
+            """
             pass
 
         def crossover(self) -> None:
+            """
+            exchange random genes between the parent chromosomes
+            """
             pass
     
         def mutate(self) -> None:
+            """
+            randomly change some genes on the individual parent chromosomes
+            """
             pass
 
         def evolve(self) -> None:
+            """
+            discard the bottom n chromosomes (based on the fitness)
+            """
             pass
 
         def run_genetic(self, generations) -> None:
