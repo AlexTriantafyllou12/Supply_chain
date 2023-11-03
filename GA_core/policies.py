@@ -9,7 +9,7 @@ class PolicyInterface:
 
 class MinMax(PolicyInterface):
     """
-    continous policy with the variables - min value (i.e., rop) and max value (i.e., the order-up-to point)
+    continous policy with variables - min value (i.e., rop) and max value (i.e., the order-up-to point)
     """
     
     def find_quantity_to_order(self) -> None:
@@ -21,7 +21,7 @@ class MinMax(PolicyInterface):
 
 class QR(PolicyInterface):
     """
-    continous policy with the variables - quantity to order (Q) and reorder point (R)
+    continous policy with variables - quantity to order (Q) and reorder point (R)
     """
 
     def find_quantity_to_order(self) -> None:
