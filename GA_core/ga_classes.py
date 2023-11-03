@@ -1,9 +1,13 @@
-import random
+
+class ProgressObserver:
+    def update(self, generation, best_score):
+        print(f"Generation {generation}: Best solution - {best_score}")
+
 
 class Genetic_Algorithm:
 
     def __init__(self) -> None:
-        
+        self.observers = []
         
         def create_population(self) -> None:
             pass
@@ -22,6 +26,24 @@ class Genetic_Algorithm:
 
         def evolve(self) -> None:
             pass
+
+        def run_genetic(self, generations) -> None:
+
+            self.create_population()
+
+            for generation in range(generation):
+                population_new = []
+
+            pass
+
+        def create_observer(self, observer):
+            self.observers.append(observer)
+
+        def notify_observers(self, generation, best_solution):
+
+            for observer in self.observers:
+                observer.update(generation, best_solution)
+
 
 
 class Individual_Solution:
