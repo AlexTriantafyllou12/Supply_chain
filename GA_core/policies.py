@@ -19,11 +19,12 @@ class MinMax(PolicyInterface):
     """
     policy with variables - min value (i.e., rop) and max value (i.e., the order-up-to point)
     """
+
+    name = 'minmax'
     
     def __init__(self, skus) -> None:
         
         super().__init__(skus)
-        self.name = 'minmax'
         self.min = 0
         self.max = 0
 
@@ -41,10 +42,10 @@ class QR(PolicyInterface):
     """
     policy with variables - quantity to order (Q) and reorder point (R)
     """
+    name = 'qr'
 
     def __init__(self, skus) -> None:
         super().__init__(skus)
-        self.name = 'qr'
         self.q_to_order = 0
         self.rop = 0
 
@@ -62,10 +63,10 @@ class Periodic_Up_To_Point(PolicyInterface):
     """
     periodic policy with variables - time periods and order-up-to value
     """
+    name = 'periodic_utp'
 
     def __init__(self, skus) -> None:
         super().__init__(skus)
-        self.name = 'periodic_utp'
         self.time_period = 0
         self.order_up_to = 0
 
@@ -92,3 +93,9 @@ class Policy_Factory:
         
         else: raise ValueError("Policy type not valid")
 
+
+
+dict = dict()
+factory = Policy_Factory()
+policy = factory.create_policy('minmax', dict)
+print(policy.name)
