@@ -93,9 +93,3 @@ class Policy_Factory:
         
         else: raise ValueError("Policy type not valid")
 
-
-
-dict = dict()
-factory = Policy_Factory()
-policy = factory.create_policy('minmax', dict)
-print(policy.name)
