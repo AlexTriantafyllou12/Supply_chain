@@ -16,58 +16,52 @@ class Genetic_Algorithm:
     def __init__(self) -> None:
         self.observers = []
         
-        def create_population(self) -> None:
-            """
-            create some number of Individual_Solution objects
-            """
-            pass
-        
-        def evaluate_population(self) -> None:
-            """
-            find the fitness of each chromosome (i.e., the cost function)
-            """
-            pass
-
-        def select_parents(self) -> None:
-            """
-            select parent chromosomes for a crossover
-            """
-            pass
-
-        def crossover(self) -> None:
-            """
-            exchange random genes between the parent chromosomes
-            """
-            pass
+    def create_population(self) -> None:
+        """
+        create some number of Individual_Solution objects
+        """
+        pass
     
-        def mutate(self) -> None:
-            """
-            randomly change some genes on the individual parent chromosomes
-            """
-            pass
+    def evaluate_population(self) -> None:
+        """
+        find the fitness of each chromosome (i.e., the cost function)
+        """
+        pass
 
-        def evolve(self) -> None:
-            """
-            discard the bottom n chromosomes (based on the fitness)
-            """
-            pass
+    def select_parents(self) -> None:
+        """
+        select parent chromosomes for a crossover
+        """
+        pass
 
-        def run_genetic(self, generations) -> None:
+    def crossover(self) -> None:
+        """
+        exchange random genes between the parent chromosomes
+        """
+        pass
 
-            self.create_population()
+    def mutate(self) -> None:
+        """
+        randomly change some genes on the individual parent chromosomes
+        """
+        pass
 
-            for generation in range(generation):
-                population_new = []
+    def evolve(self) -> None:
+        """
+        discard the bottom n chromosomes (based on the fitness)
+        """
+        pass
 
-            pass
+    def run_genetic(self, generations) -> None:
+        print('running..')
 
-        def create_observer(self, observer):
-            self.observers.append(observer)
+    def create_observer(self, observer):
+        self.observers.append(observer)
 
-        def notify_observers(self, generation, best_solution):
+    def notify_observers(self, generation, best_solution):
 
-            for observer in self.observers:
-                observer.update(generation, best_solution)
+        for observer in self.observers:
+            observer.update(generation, best_solution)
 
 
 
