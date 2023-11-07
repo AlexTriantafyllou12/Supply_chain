@@ -1,16 +1,17 @@
+from abc import ABC, abstractmethod
 
-class PolicyInterface():
+class PolicyInterface(ABC):
 
     def __init__(self, 
                  skus) -> None:
         
         self.skus = skus
 
-  
+    @abstractmethod
     def get_params(self) -> None:
         pass
     
-  
+    @abstractmethod    
     def update_params(self, value) -> None:
         pass
 

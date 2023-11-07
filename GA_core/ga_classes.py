@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 
 class ProgressObserver:
     def update(self, generation, best_score):
@@ -92,8 +93,9 @@ class Individual_Solution:
             pass
 
 
-class CrossoverInterface:
+class CrossoverInterface(ABC):
 
+    @abstractmethod
     def crossover(self, parents) -> None:
         pass
 
