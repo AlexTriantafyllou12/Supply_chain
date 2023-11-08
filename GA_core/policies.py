@@ -8,76 +8,168 @@ class PolicyInterface(ABC):
         self.skus = skus
 
     @abstractmethod
-    def get_params(self) -> None:
+    def get_params(self) -> dict:
+        """Returns class attributes as a dictionary.
+
+        Returns:
+            dict: returns a dictionary with the attributes of the class
+        """
         pass
     
     @abstractmethod    
-    def update_params(self, value) -> None:
+    def update_params(self) -> None:
+        """Update class attributes
+        """
         pass
 
 
 class MinMax(PolicyInterface):
+    """A class used to represent minmax inventory policy.
+
+    Args:
+        DemandInterface (class): Abstract parent class
+    
+    Attributes:
+        skus (dict): a dictionary of SKUType objects
+        min (int, optional): minimum reordering point. Set to 0 by default.
+        max (int, optional): maximum order-up-to point. Set to 0 by default.
     """
-    policy with variables - min value (i.e., rop) and max value (i.e., the order-up-to point)
-    """
+
 
     name = 'minmax'
     
-    def __init__(self, skus) -> None:
+    def __init__(self, 
+                 skus: dict,
+                 min: int = 0,
+                 max: int = 0) -> None:
+        """Constructor for MinMax class.
+
+        Args:
+            skus (dict): a dictionary of SKUType objects
+            min (int, optional): minimum reordering point. Set to 0 by default.
+            max (int, optional): maximum order-up-to point. Set to 0 by default.
+        """
         
         super().__init__(skus)
-        self.min = 0
-        self.max = 0
+
 
     
-    def get_params(self) -> None:
+    def get_params(self) -> dict:
+        """Returns class attributes as a dictionary.
+
+        Returns:
+            dict: returns a dictionary with the attributes of the class
+        """
         pass
 
     def update_params(self, 
-                      min=None, 
-                      max=None)  -> None:
+                      min:int = None, 
+                      max: int = None)  -> None:
+        """Update min and/ or max class attributes 
+
+        Args:
+            min (int, optional): the new min value to be updated. Defaults to None.
+            max (int, optional): the new max value to be updated. Defaults to None.
+        """
         pass
 
 
 class QR(PolicyInterface):
+    """A class used to represent (Q, R) inventory policy.
+
+    Args:
+        DemandInterface (class): Abstract parent class
+    
+    Attributes:
+        skus (dict): a dictionary of SKUType objects
+        q_to_order (int, optional): the quantity to order. Defaults to 0.
+        rop (int, optional): the reordering point. Defaults to 0.        
     """
-    policy with variables - quantity to order (Q) and reorder point (R)
-    """
+
     name = 'qr'
 
-    def __init__(self, skus) -> None:
+    def __init__(self, 
+                 skus: dict,
+                 q_to_order: int = 0,
+                 rop: int = 0) -> None:
+        """Constructor for QR class.
+
+        Args:
+            skus (dict): a dictionary of SKUType objects.
+            q_to_order (int, optional): the quantity to order. Defaults to 0.
+            rop (int, optional): the reordering point. Defaults to 0.
+        """
         super().__init__(skus)
-        self.q_to_order = 0
-        self.rop = 0
 
 
-    def get_params(self) -> None:
+
+    def get_params(self) -> dict:
+        """Returns class attributes as a dictionary.
+
+        Returns:
+            dict: returns a dictionary with the attributes of the class
+        """        
         pass
 
     def update_params(self, 
-                      q_to_order=None,
-                      rop=None)  -> None:
+                      q_to_order:int = None,
+                      rop:int = None)  -> None:
+        """Update q_to_order and/or rop class attributes.
+
+        Args:
+            q_to_order (int, optional): the new q_to_order value to be updated. Defaults to None.
+            rop (int, optional): the new rop value to be updated. Defaults to None.
+        """
         pass
 
 
 class Periodic_Up_To_Point(PolicyInterface):
+    """A class used to represent a periodic inventory policy.
+
+    Args:
+        DemandInterface (class): Abstract parent class
+    
+    Attributes:
+        skus (dict): a dictionary of SKUType objects.
+        time_period (int, optional): Frequency of inventory reviews. Defaults to 0.
+        order_up_to (int, optional): Order-up-to quantity. Defaults to 0.       
     """
-    periodic policy with variables - time periods and order-up-to value
-    """
+
+    
     name = 'periodic_utp'
 
-    def __init__(self, skus) -> None:
+    def __init__(self, 
+                 skus: dict,
+                 time_period: int = 0,
+                 order_up_to: int = 0) -> None:
+        """Constructor for Periodic_Up_To_Point class.
+
+        Args:
+            skus (dict): a dictionary of SKUType objects.
+            time_period (int, optional): Frequency of inventory reviews. Defaults to 0.
+            order_up_to (int, optional): Order-up-to quantity. Defaults to 0.
+        """
         super().__init__(skus)
-        self.time_period = 0
-        self.order_up_to = 0
 
 
-    def get_params(self) -> None:
+
+    def get_params(self) -> dict:
+        """Returns class attributes as a dictionary.
+
+        Returns:
+            dict: returns a dictionary with the attributes of the class
+        """        
         pass
 
     def update_params(self, 
-                      time_period=None,
-                      order_up_to=None) -> None:
+                      time_period:int = None,
+                      order_up_to:int = None) -> None:
+        """Update time_period and/or order_up_to class attributes.
+
+        Args:
+            time_period (int, optional): the new time_period value to be updated. Defaults to None.
+            order_up_to (int, optional): the new order_up_to value to be updated. Defaults to None.
+        """
         pass
 
 
