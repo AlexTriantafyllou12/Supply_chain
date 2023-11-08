@@ -4,9 +4,16 @@ import pandas as pd
 import random
 
 class DemandInterface(ABC):
+    """A class representing the demand interface.
+
+    Args:
+        ABC (class): Abstract class
+    """
     
     @abstractmethod
     def generate(self) -> None:
+        """Placeholder method for demand generation.
+        """
         pass
 
 
@@ -88,13 +95,33 @@ class Demand_Seasonal(DemandInterface):
 
 
 class Demand_Gen():
+    """A class implementing the factory design pattern.
+    """
     
 
-    def __init__(self, weeks) -> None:
+    def __init__(self, 
+                 weeks:int) -> None:
+        """A constructor for the Demand_Gen class.
+
+        Args:
+            weeks (int): the number of weeks demand must be generated for.
+        """
         self.period = weeks
         
         
-    def generate(self, type) -> None:
+    def generate(self, 
+                 type:str = 'random') -> list:
+        """Generated demand according to the type specified.
+
+        Args:
+            type (str, optional): type of demand to be generated
+
+        Raises:
+            ValueError: raises an error if invalid demand type is provided
+
+        Returns:
+            list: a list of integers representing demand
+        """
         
         if type == 'random':
             return Demand_Random().generate(weeks=self.period)
