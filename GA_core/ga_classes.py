@@ -69,28 +69,29 @@ class Genetic_Algorithm:
 class Individual_Solution:
 
     def __init__(self) -> None:
+        pass
         
         
-        def solution_initialize(self) -> None:
+    def solution_initialize(self) -> None:
 
-            """
-            create a solution
-            """
-            pass
+        """
+        create a solution
+        """
+        pass
 
-        def solution_evaluation(self) -> None:
+    def solution_evaluation(self) -> None:
 
-            """
-            evaluate the fitness of solution based on a given function
-            """
-            pass
+        """
+        evaluate the fitness of solution based on a given function
+        """
+        pass
 
-        def mutate(self) -> None:
+    def mutate(self) -> None:
 
-            """
-            apply small random changes in a solution
-            """
-            pass
+        """
+        apply small random changes in a solution
+        """
+        pass
 
 
 class CrossoverInterface(ABC):
@@ -113,7 +114,7 @@ class Crossover_var2(CrossoverInterface):
         pass
 
 
-class Crossover_Factory:
+class Crossover_Factory():
 
     @staticmethod
     def create_crossover(type):
