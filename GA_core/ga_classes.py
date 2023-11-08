@@ -1,62 +1,132 @@
 from abc import ABC, abstractmethod
-
-class ProgressObserver:
-    def update(self, generation, best_score):
-        print(f"Generation {generation}: Best solution - {best_score}")
-
+import policies
 
 class Individual_Solution:
+    """A class representing an inidividual solution (i.e., a collection of policies)
 
-    def __init__(self) -> None:
+    Attributes:
+        skus (list): a list of SKU_Type objects 
+    """
+
+    def __init__(self, 
+                 skus: list) -> None:
+        """A constructor for the Individual_Solution class.
+
+        Args:
+            skus (list): a list of SKU_Type objects 
+        """
+        self.solution = []
         pass
         
         
     def solution_initialize(self) -> None:
 
-        """
-        create a solution
-        """
-        pass
-
-    def solution_evaluation(self) -> None:
-
-        """
-        evaluate the fitness of solution based on a given function
+        """Initialise the solution
         """
         pass
 
-    def mutate(self) -> None:
+    def solution_evaluation(self) -> float:
 
-        """
-        apply small random changes in a solution
+        """Evaluate the fitness of the solution
+
+        Returns:
+            float: the fitness of the solution
         """
         pass
+
+    def mutate(self,
+               loc: int,
+               mutation: policies.PolicyInterface) -> None:
+        
+        """Mutates a policy in the solution
+
+        Args:
+            loc (int): location of the mutation
+            mutation (policies.PolicyInterface): the new policy to be updated
+        """
+
+        pass
+
+
+class ProgressObserver:
+    """A class representing a progress observer.
+    """
+    def update(self, 
+               generation: int, 
+               best_score: float,
+               best_solution: Individual_Solution):
+        """Updates observer about the progress of the GA
+
+        Args:
+            generation (int): the number of the generation
+            best_score (float): the fitness of the solution
+            best_solution (Individual_Solution): Individual_Solution object with the best fitness
+        """
+        print(f"Generation {generation}: Best solution - {best_score}")
+
 
 
 class CrossoverInterface(ABC):
+    """A class representing the crossover interface.
+
+    Args:
+        ABC (class): Abstract class
+    """
 
     @abstractmethod
-    def crossover(self, parents) -> None:
-        pass
+    def crossover(self, 
+                  parents: list) -> list:
+        """Placeholder for the corssover functions.
 
+        Args:
+            parents (list): list of Individual_Solution objects representing parent solutions
+
+        Returns:
+            list: list of Individual_Solution objects representing child solutions.
+        """
+        pass
 
 
 class Crossover_var1(CrossoverInterface):
 
-    def crossover(self, parents) -> None:
+    def crossover(self, 
+                  parents:list) -> None:
         pass
 
 
 class Crossover_var2(CrossoverInterface):
 
-    def crossover(self, parents) -> None:
+    def crossover(self, 
+                  parents:list) -> None:
         pass
 
 
 class Crossover_Factory():
+    """A class implementing the factory design pattern.
+
+    Raises:
+        ValueError: raises an error if an invalid crossover type is provided.
+
+    Returns:
+        list: list of Individual_Solution objects representing child solutions.
+    """
 
     @staticmethod
-    def create_crossover(type):
+    def create_crossover(type:str, 
+                         parents: list):
+        """Crosses over parent solutions given the specified type
+
+        Args:
+            type (str): type of the crossover
+            parents (list): list of Individual_Solution objects representing parent solutions
+
+        Raises:
+            ValueError: raises an error if an invalid crossover type is provided.
+
+        Returns:
+            list: list of Individual_Solution objects representing child solutions.
+        """
+
         if type == '1':
             return Crossover_var1()
         elif type == '2':
@@ -69,6 +139,8 @@ class Genetic_Algorithm:
     """
 
     def __init__(self) -> None:
+        """A constructor for the Genetic_Algorithm class.
+        """
         self.observers = []
         self.population = []
         self.fitness = []
@@ -108,15 +180,13 @@ class Genetic_Algorithm:
         pass
 
     def crossover(self,
-                  parent1: Individual_Solution,
-                  parent2: Individual_Solution,
+                  parents: list,
                   rate: float = 0.9
                   ) -> list:
         """Crossover parent solution to generate two child solutions.
 
         Args:
-            parent1 (Individual_Solution): the first parent solution
-            parent2 (Individual_Solution): the second parent solution
+            parents (list): parent solutions
             rate (float, optional): probability of the crossover happening. Defaults to 0.9.
 
         Returns:
