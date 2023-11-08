@@ -5,67 +5,6 @@ class ProgressObserver:
         print(f"Generation {generation}: Best solution - {best_score}")
 
 
-class Genetic_Algorithm:
-    """
-    gene = policy (per SKU)
-
-    chromosome = individual solution (e.g., for 100 SKUs, max 100 policies)
-
-    population = a number of chromosomes
-    """
-
-    def __init__(self) -> None:
-        self.observers = []
-        
-    def create_population(self) -> None:
-        """
-        create some number of Individual_Solution objects
-        """
-        pass
-    
-    def evaluate_population(self) -> None:
-        """
-        find the fitness of each chromosome (i.e., the cost function)
-        """
-        pass
-
-    def select_parents(self) -> None:
-        """
-        select parent chromosomes for a crossover
-        """
-        pass
-
-    def crossover(self) -> None:
-        """
-        exchange random genes between the parent chromosomes
-        """
-        pass
-
-    def mutate(self) -> None:
-        """
-        randomly change some genes on the individual parent chromosomes
-        """
-        pass
-
-    def evolve(self) -> None:
-        """
-        discard the bottom n chromosomes (based on the fitness)
-        """
-        pass
-
-    def run_genetic(self, generations) -> None:
-        print('running..')
-
-    def create_observer(self, observer):
-        self.observers.append(observer)
-
-    def notify_observers(self, generation, best_solution):
-
-        for observer in self.observers:
-            observer.update(generation, best_solution)
-
-
-
 class Individual_Solution:
 
     def __init__(self) -> None:
@@ -124,6 +63,114 @@ class Crossover_Factory():
             return Crossover_var2()
         
         else: raise ValueError("nope...")
+
+class Genetic_Algorithm:
+    """A class representing a genetic algorithm.
+    """
+
+    def __init__(self) -> None:
+        self.observers = []
+        self.population = []
+        self.fitness = []
+        
+    def create_population(self, 
+                          size:int, 
+                          skus:list) -> list:
+        """Generates a population of Individual_Solution objects. 
+
+        Args:
+            size (int): the size of the population
+            skus (list): a list of SKU_Type objects 
+
+        Returns:
+            list: a list of Individual_Solution objects representing a population.
+        """
+        pass
+    
+    def evaluate_population(self) -> list:
+        """Evaluates the fitness of each solution in the population.
+
+        Returns:
+            list: a list of fitness scores
+        """
+        pass
+
+    def select_parents(self, 
+                       pool_size:int  = 3) -> list:
+        """Selects parent solutions according to tournament selection.
+
+        Args:
+            pool_size (int, optional): the number of solution sampled from the population, i.e., the tournament size
+
+        Returns:
+            list: a list of selected parent solutions.
+        """
+        pass
+
+    def crossover(self,
+                  parent1: Individual_Solution,
+                  parent2: Individual_Solution,
+                  rate: float = 0.9
+                  ) -> list:
+        """Crossover parent solution to generate two child solutions.
+
+        Args:
+            parent1 (Individual_Solution): the first parent solution
+            parent2 (Individual_Solution): the second parent solution
+            rate (float, optional): probability of the crossover happening. Defaults to 0.9.
+
+        Returns:
+            list: a list of Individual_Solution objects representing child solutions.
+        """
+        pass
+
+    def mutate(self,
+               individual: Individual_Solution,
+               rate: float = 0.9) -> None:
+        """Mutates a random policy in the solution provided.
+
+        Args:
+            individual (Individual_Solution): the solution to be mutated.
+            rate (float, optional): probability of the mutations happening. Defaults to 0.9.
+        """
+        pass
+
+    def evolve(self,
+               next_gen: list) -> None:
+        """Updates the population attribute.
+
+        Args:
+            next_gen (list): a list of Individual_Solution objects.
+        """
+        pass
+
+    def run_genetic(self,
+                    population: list,
+                    crossover_rate:float = 0.9,
+                    mutation_rate: float = 0.9, 
+                    generations:int = 100) -> None:
+        """Runs the genetic algorithm. 
+
+        Args:
+            population (list): a list of Individual_Solution objects representing a population. 
+            crossover_rate (float, optional): probability of the crossover happening. Defaults to 0.9.
+            mutation_rate (float, optional): probability of the mutations happening. Defaults to 0.9.
+            generations (int, optional): the number of generations for the algorithm to run for. Defaults to 100.
+        """
+
+        print('running..')
+
+    def create_observer(self, observer):
+        self.observers.append(observer)
+
+    def notify_observers(self, generation, best_solution):
+
+        for observer in self.observers:
+            observer.update(generation, best_solution)
+
+
+
+
 
 
 
