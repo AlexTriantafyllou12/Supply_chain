@@ -1,16 +1,13 @@
-from abc import ABC, abstractmethod
+from abc import ABCMeta, abstractmethod
+from GA_core.gene import Gene
 
-from ..GA_core.gene import Gene
 
-class PolicyInterface(ABC, Gene):
+class PolicyInterface(Gene, metaclass=ABCMeta):
 
     def __init__(self, 
                  skus) -> None:
         
         self.skus = skus
-
-    def mutate_gene(self):
-        return super().mutate_gene()
 
     @abstractmethod
     def get_params(self) -> dict:
@@ -20,12 +17,7 @@ class PolicyInterface(ABC, Gene):
             dict: returns a dictionary with the attributes of the class
         """
         pass
-    
-    @abstractmethod    
-    def update_params(self) -> None:
-        """Update class attributes
-        """
-        pass
+
 
 
 class MinMax(PolicyInterface):
@@ -67,7 +59,7 @@ class MinMax(PolicyInterface):
         """
         pass
 
-    def update_params(self, 
+    def mutate_gene(self, 
                       min:int = None, 
                       max: int = None)  -> None:
         """Update min and/ or max class attributes 
@@ -116,7 +108,7 @@ class QR(PolicyInterface):
         """        
         pass
 
-    def update_params(self, 
+    def mutate_gene(self, 
                       q_to_order:int = None,
                       rop:int = None)  -> None:
         """Update q_to_order and/or rop class attributes.
@@ -166,7 +158,7 @@ class Periodic_Up_To_Point(PolicyInterface):
         """        
         pass
 
-    def update_params(self, 
+    def muate_gene(self, 
                       time_period:int = None,
                       order_up_to:int = None) -> None:
         """Update time_period and/or order_up_to class attributes.
@@ -194,5 +186,5 @@ class Policy_Factory:
 
 skus = dict()
 factory = Policy_Factory()
-policy = factory.create_policy('minmax', skus)
+policy = factory.create_policy('qr', skus)
 print(policy.name)
