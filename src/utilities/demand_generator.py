@@ -109,35 +109,63 @@ class Demand_Gen():
         self.period = weeks
         
         
-    def generate(self, 
-                 type:str = 'random') -> list:
+    def generate(self,
+                 nr_skus:int,
+                 split:list, 
+                 type:list) -> pd.DataFrame:
         """Generated demand according to the type specified.
 
         Args:
-            type (str, optional): type of demand to be generated
+            nr_skus (int): the number of items
+            split (list): the split of items across the policies 
+            type (list): policy type for each split
 
         Raises:
             ValueError: raises an error if invalid demand type is provided
 
         Returns:
-            list: a list of integers representing demand
+            pd.Dataframe: a dataframe with a column per time period and a row per sku + a column for sku names
         """
         
-        if type == 'random':
-            return Demand_Random().generate(weeks=self.period)
+        # check the dimension match 
+        if len(split) != len(type):
+            raise ValueError("The number of splits does not match the number of policy types")
+        
+        # check the splits sum up to the total number of skus
+        if sum(split) != nr_skus:
+            raise ValueError("The split do not sum up to the total number of SKUs")
+        
+        columns = ['week_' + str(x) for x in range(self.period)]  # column headers      
+        data = [] # demands will go here
 
-        elif type == 'trend':
-            return Demand_Trend.generate(weeks=self.period)
+        for i, demand in enumerate(type):
+            if demand == 'random':
+                for _ in range(split[i]):
+                    data.append(Demand_Random().generate(weeks=self.period))
+
+            elif demand == 'trend':
+                for _ in range(split[i]):
+                    data.append(Demand_Trend.generate(weeks=self.period))
+            
+            elif demand == 'seasonal':
+                for _ in range(split[i]):
+                    data.append(Demand_Seasonal().generate(weeks=self.period))
+            
+            else: 
+                raise ValueError('Invalid demand type')
         
-        elif type == 'seasonal':
-            return Demand_Seasonal().generate(weeks=self.period)
-        
-        else: 
-            raise ValueError('Invalid demand type')
+        # creat a column for skus    
+        skus = pd.DataFrame({'skus' : ['sku'+str(x) for x in range(nr_skus)]}) 
+        # create a df for demands
+        df_demand = pd.DataFrame(data=data, columns=columns)
+        # combine the sku and demand dataframes
+        df_demand = skus.join(df_demand)
+
+        return df_demand
 
 
 weekss=50
-test = Demand_Gen(weeks=weekss).generate(type='seasonal')
+test = Demand_Gen(weeks=weekss).generate(10, [9, 1], ['seasonal', 'random'])
 
 print(test)
 

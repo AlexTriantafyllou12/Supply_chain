@@ -1,11 +1,16 @@
 from abc import ABC, abstractmethod
 
-class PolicyInterface(ABC):
+from ..GA_core.gene import Gene
+
+class PolicyInterface(ABC, Gene):
 
     def __init__(self, 
                  skus) -> None:
         
         self.skus = skus
+
+    def mutate_gene(self):
+        return super().mutate_gene()
 
     @abstractmethod
     def get_params(self) -> dict:
@@ -186,3 +191,8 @@ class Policy_Factory:
         
         else: raise ValueError("Policy type not valid")
 
+
+skus = dict()
+factory = Policy_Factory()
+policy = factory.create_policy('minmax', skus)
+print(policy.name)
