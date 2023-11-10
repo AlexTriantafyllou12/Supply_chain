@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-import policies
 
 class Individual_Solution:
     """A class representing an inidividual solution (i.e., a collection of policies)
