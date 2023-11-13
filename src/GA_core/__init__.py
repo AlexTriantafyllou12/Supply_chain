@@ -1,0 +1,1 @@
+from GA_core.ga_classes import ProgressObserver, Genetic_Algorithm
