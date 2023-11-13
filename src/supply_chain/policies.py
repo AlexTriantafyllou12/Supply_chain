@@ -184,7 +184,3 @@ class Policy_Factory:
         else: raise ValueError("Policy type not valid")
 
 
-skus = dict()
-factory = Policy_Factory()
-policy = factory.create_policy('qr', skus)
-print(policy.name)
