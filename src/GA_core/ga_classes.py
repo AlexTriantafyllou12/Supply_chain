@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from GA_core.gene import Gene
 
 class Individual_Solution:
     """A class representing an inidividual solution (i.e., a collection of policies)
