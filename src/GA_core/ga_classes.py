@@ -1,49 +1,5 @@
 from abc import ABC, abstractmethod
-from GA_core.gene import Gene
-
-class Individual_Solution:
-    """A class representing an inidividual solution (i.e., a collection of policies)
-
-    Attributes:
-        skus (list): a list of SKU_Type objects 
-    """
-
-    def __init__(self, 
-                 skus: list) -> None:
-        """A constructor for the Individual_Solution class.
-
-        Args:
-            skus (list): a list of SKU_Type objects 
-        """
-        self.solution = []
-        pass
-        
-        
-    def solution_initialize(self) -> None:
-
-        """Initialise the solution
-        """
-        pass
-
-    def solution_evaluation(self) -> float:
-
-        """Evaluate the fitness of the solution
-
-        Returns:
-            float: the fitness of the solution
-        """
-        pass
-
-    def mutate_chrom(self,
-               loc: int) -> None:
-        
-        """Mutates a policy in the solution
-
-        Args:
-            loc (int): location of the mutation
-        """
-
-        pass
+import GA_core as ga_opt
 
 
 class ProgressObserver:
@@ -52,7 +8,7 @@ class ProgressObserver:
     def update(self, 
                generation: int, 
                best_score: float,
-               best_solution: Individual_Solution):
+               best_solution: ga_opt.Chromosome):
         """Updates observer about the progress of the GA
 
         Args:
@@ -193,7 +149,6 @@ class Genetic_Algorithm:
         pass
 
     def mutate(self,
-               individual: Individual_Solution,
                rate: float = 0.9) -> None:
         """Mutates a random policy in the solution provided.
 
