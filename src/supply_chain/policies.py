@@ -1,8 +1,8 @@
 from abc import ABCMeta, abstractmethod
-from GA_core.gene import Gene
+import GA_core as ga_opt
 
 
-class PolicyInterface(Gene, metaclass=ABCMeta):
+class PolicyInterface(ga_opt.Gene, metaclass=ABCMeta):
 
     def __init__(self, 
                  skus) -> None:
