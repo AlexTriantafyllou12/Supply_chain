@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+import GA_core as ga_opt
 
 class CrossoverInterface(ABC):
     """A class representing the crossover interface.
@@ -9,7 +10,7 @@ class CrossoverInterface(ABC):
 
     @abstractmethod
     def crossover(self, 
-                  parents: list) -> list:
+                  parents: list) -> list[ga_opt.Chromosome]:
         """Placeholder for the corssover functions.
 
         Args:
@@ -24,14 +25,14 @@ class CrossoverInterface(ABC):
 class Crossover_var1(CrossoverInterface):
 
     def crossover(self, 
-                  parents:list) -> None:
+                  parents:list) -> list[ga_opt.Chromosome]:
         pass
 
 
 class Crossover_var2(CrossoverInterface):
 
     def crossover(self, 
-                  parents:list) -> None:
+                  parents:list) -> list[ga_opt.Chromosome]:
         pass
 
 
@@ -47,7 +48,7 @@ class Crossover_Factory():
 
     @staticmethod
     def create_crossover(type:str, 
-                         parents: list):
+                         parents: list) -> list[ga_opt.Chromosome]:
         """Crosses over parent solutions given the specified type
 
         Args:
@@ -58,7 +59,7 @@ class Crossover_Factory():
             ValueError: raises an error if an invalid crossover type is provided.
 
         Returns:
-            list: list of Individual_Solution objects representing child solutions.
+            list: list of Chromosome objects representing child solutions.
         """
 
         if type == '1':

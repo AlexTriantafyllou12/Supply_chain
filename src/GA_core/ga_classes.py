@@ -95,10 +95,10 @@ class Genetic_Algorithm:
 
         print('running..')
 
-    def create_observer(self, observer):
+    def create_observer(self, observer) -> None:
         self.observers.append(observer)
 
-    def notify_observers(self, generation, best_solution):
+    def notify_observers(self, generation, best_solution) -> None:
 
         for observer in self.observers:
             observer.update(generation, best_solution)
