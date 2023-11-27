@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import random
 
-class DemandInterface(ABC):
+class Demand(ABC):
     """A class representing the demand interface.
 
     Args:

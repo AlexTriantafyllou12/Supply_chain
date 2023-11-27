@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 import GA_core as ga_opt
 
-class CrossoverInterface(ABC):
+class Crossover(ABC):
     """A class representing the crossover interface.
 
     Args:

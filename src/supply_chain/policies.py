@@ -2,7 +2,7 @@ from abc import ABCMeta, abstractmethod
 import GA_core as ga_opt
 
 
-class PolicyInterface(metaclass=ABCMeta):
+class Policy(metaclass=ABCMeta):
 
     @abstractmethod
     def get_params(self) -> dict:
