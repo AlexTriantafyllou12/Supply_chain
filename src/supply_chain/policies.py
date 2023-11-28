@@ -2,12 +2,7 @@ from abc import ABCMeta, abstractmethod
 import GA_core as ga_opt
 
 
-class PolicyInterface(ga_opt.Gene, metaclass=ABCMeta):
-
-    def __init__(self, 
-                 skus) -> None:
-        
-        self.skus = skus
+class Policy(metaclass=ABCMeta):
 
     @abstractmethod
     def get_params(self) -> dict:
@@ -20,7 +15,7 @@ class PolicyInterface(ga_opt.Gene, metaclass=ABCMeta):
 
 
 
-class MinMax(PolicyInterface):
+class MinMax(PolicyInterface, ga_opt.Gene):
     """A class used to represent minmax inventory policy.
 
     Args:
@@ -46,9 +41,9 @@ class MinMax(PolicyInterface):
             min (int, optional): minimum reordering point. Set to 0 by default.
             max (int, optional): maximum order-up-to point. Set to 0 by default.
         """
-        
-        super().__init__(skus)
-
+        self.skus = skus
+        self.min = min
+        self.max = max
 
     
     def get_params(self) -> dict:
@@ -71,7 +66,7 @@ class MinMax(PolicyInterface):
         pass
 
 
-class QR(PolicyInterface):
+class QR(PolicyInterface, ga_opt.Gene):
     """A class used to represent (Q, R) inventory policy.
 
     Args:
@@ -96,8 +91,9 @@ class QR(PolicyInterface):
             q_to_order (int, optional): the quantity to order. Defaults to 0.
             rop (int, optional): the reordering point. Defaults to 0.
         """
-        super().__init__(skus)
-
+        self.skus = skus
+        self.q_to_order = q_to_order
+        self.rop = rop
 
 
     def get_params(self) -> dict:
@@ -120,7 +116,7 @@ class QR(PolicyInterface):
         pass
 
 
-class Periodic_Up_To_Point(PolicyInterface):
+class Periodic_Up_To_Point(PolicyInterface, ga_opt.Gene):
     """A class used to represent a periodic inventory policy.
 
     Args:
@@ -146,8 +142,9 @@ class Periodic_Up_To_Point(PolicyInterface):
             time_period (int, optional): Frequency of inventory reviews. Defaults to 0.
             order_up_to (int, optional): Order-up-to quantity. Defaults to 0.
         """
-        super().__init__(skus)
-
+        self.skus = skus
+        self.time_period = time_period
+        self.order_up_to = order_up_to
 
 
     def get_params(self) -> dict:
