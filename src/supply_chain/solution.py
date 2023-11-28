@@ -18,7 +18,6 @@ class Individual_Solution(ga_opt.Chromosome):
         
         
     def solution_initialize(self,
-                            policyTypes,
                             skus) -> None:
 
         """Initialise the solution
