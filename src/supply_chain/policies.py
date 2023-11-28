@@ -15,7 +15,7 @@ class Policy(metaclass=ABCMeta):
 
 
 
-class MinMax(PolicyInterface, ga_opt.Gene):
+class MinMax(Policy, ga_opt.Gene):
     """A class used to represent minmax inventory policy.
 
     Args:
@@ -66,7 +66,7 @@ class MinMax(PolicyInterface, ga_opt.Gene):
         pass
 
 
-class QR(PolicyInterface, ga_opt.Gene):
+class QR(Policy, ga_opt.Gene):
     """A class used to represent (Q, R) inventory policy.
 
     Args:
@@ -116,7 +116,7 @@ class QR(PolicyInterface, ga_opt.Gene):
         pass
 
 
-class Periodic_Up_To_Point(PolicyInterface, ga_opt.Gene):
+class Periodic_Up_To_Point(Policy, ga_opt.Gene):
     """A class used to represent a periodic inventory policy.
 
     Args:
