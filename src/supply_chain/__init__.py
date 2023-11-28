@@ -1,1 +1,2 @@
 from supply_chain.policies import Policy_Factory
+from supply_chain.solution import Individual_Solution
