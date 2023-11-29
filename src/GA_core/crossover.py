@@ -22,14 +22,14 @@ class Crossover(ABC):
         pass
 
 
-class Crossover_var1(CrossoverInterface):
+class Crossover_var1(Crossover):
 
     def crossover(self, 
                   parents:list) -> list[ga_opt.Chromosome]:
         pass
 
 
-class Crossover_var2(CrossoverInterface):
+class Crossover_var2(Crossover):
 
     def crossover(self, 
                   parents:list) -> list[ga_opt.Chromosome]:
