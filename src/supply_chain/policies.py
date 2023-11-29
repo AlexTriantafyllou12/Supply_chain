@@ -1,5 +1,6 @@
 from abc import ABCMeta, abstractmethod
 import GA_core as ga_opt
+import supply_chain as sc
 
 
 class Policy(metaclass=ABCMeta):
@@ -22,7 +23,7 @@ class MinMax(Policy, ga_opt.Gene):
         DemandInterface (class): Abstract parent class
     
     Attributes:
-        skus (dict): a dictionary of SKUType objects
+        sku (SKU): SKU object
         min (int, optional): minimum reordering point. Set to 0 by default.
         max (int, optional): maximum order-up-to point. Set to 0 by default.
     """
@@ -31,17 +32,17 @@ class MinMax(Policy, ga_opt.Gene):
     name = 'minmax'
     
     def __init__(self, 
-                 skus: dict,
+                 sku: sc.SKU,
                  min: int = 0,
                  max: int = 0) -> None:
         """Constructor for MinMax class.
 
         Args:
-            skus (dict): a dictionary of SKUType objects
+            sku (SKU): SKU object
             min (int, optional): minimum reordering point. Set to 0 by default.
             max (int, optional): maximum order-up-to point. Set to 0 by default.
         """
-        self.skus = skus
+        self.sku = sku
         self.min = min
         self.max = max
 
@@ -73,7 +74,7 @@ class QR(Policy, ga_opt.Gene):
         DemandInterface (class): Abstract parent class
     
     Attributes:
-        skus (dict): a dictionary of SKUType objects
+        sku (SKU): SKU object
         q_to_order (int, optional): the quantity to order. Defaults to 0.
         rop (int, optional): the reordering point. Defaults to 0.        
     """
@@ -81,17 +82,17 @@ class QR(Policy, ga_opt.Gene):
     name = 'qr'
 
     def __init__(self, 
-                 skus: dict,
+                 sku: sc.SKU,
                  q_to_order: int = 0,
                  rop: int = 0) -> None:
         """Constructor for QR class.
 
         Args:
-            skus (dict): a dictionary of SKUType objects.
+            sku (SKU): SKU object
             q_to_order (int, optional): the quantity to order. Defaults to 0.
             rop (int, optional): the reordering point. Defaults to 0.
         """
-        self.skus = skus
+        self.sku = sku
         self.q_to_order = q_to_order
         self.rop = rop
 
@@ -123,7 +124,7 @@ class Periodic_Up_To_Point(Policy, ga_opt.Gene):
         DemandInterface (class): Abstract parent class
     
     Attributes:
-        skus (dict): a dictionary of SKUType objects.
+        sku (SKU): SKU object
         time_period (int, optional): Frequency of inventory reviews. Defaults to 0.
         order_up_to (int, optional): Order-up-to quantity. Defaults to 0.       
     """
@@ -132,17 +133,17 @@ class Periodic_Up_To_Point(Policy, ga_opt.Gene):
     name = 'periodic_utp'
 
     def __init__(self, 
-                 skus: dict,
+                 sku: sc.SKU,
                  time_period: int = 0,
                  order_up_to: int = 0) -> None:
         """Constructor for Periodic_Up_To_Point class.
 
         Args:
-            skus (dict): a dictionary of SKUType objects.
+            sku (SKU): SKU object
             time_period (int, optional): Frequency of inventory reviews. Defaults to 0.
             order_up_to (int, optional): Order-up-to quantity. Defaults to 0.
         """
-        self.skus = skus
+        self.sku = sku
         self.time_period = time_period
         self.order_up_to = order_up_to
 
@@ -168,15 +169,18 @@ class Periodic_Up_To_Point(Policy, ga_opt.Gene):
 
 
 class Policy_Factory:
+    options = ['minmax', 'qr', 'periodic_utp'] 
 
     @staticmethod
-    def create_policy(type, skus):
+    def create_policy(type: str, 
+                      sku: sc.SKU):
+        
         if type == 'minmax':
-            return MinMax(skus)
+            return MinMax(sku)
         elif type == 'qr':
-            return QR(skus)
+            return QR(sku)
         elif type == 'periodic_utp':
-            return Periodic_Up_To_Point(skus)
+            return Periodic_Up_To_Point(sku)
         
         else: raise ValueError("Policy type not valid")
 
