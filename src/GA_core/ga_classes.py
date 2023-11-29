@@ -1,4 +1,5 @@
 import GA_core as ga_opt
+import supply_chain as sc
 
 class Genetic_Algorithm:
     """A class representing a genetic algorithm.
@@ -13,7 +14,7 @@ class Genetic_Algorithm:
         
     def create_population(self, 
                           size:int, 
-                          skus:list) -> list:
+                          skus:list) -> None:
         """Generates a population of Individual_Solution objects. 
 
         Args:
@@ -23,7 +24,13 @@ class Genetic_Algorithm:
         Returns:
             list: a list of Individual_Solution objects representing a population.
         """
-        pass
+
+        for i in range(size):
+            
+            # initialise an individual solution 
+            chromosome = sc.Individual_Solution().solution_initialize(skus)
+            self.population.append(chromosome)
+
     
     def evaluate_population(self) -> list:
         """Evaluates the fitness of each solution in the population.
