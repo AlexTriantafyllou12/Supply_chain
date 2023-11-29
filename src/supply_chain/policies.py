@@ -156,7 +156,7 @@ class Periodic_Up_To_Point(Policy, ga_opt.Gene):
         """        
         pass
 
-    def muate_gene(self, 
+    def mutate_gene(self, 
                       time_period:int = None,
                       order_up_to:int = None) -> None:
         """Update time_period and/or order_up_to class attributes.
