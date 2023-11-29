@@ -1,4 +1,6 @@
+import random
 import GA_core as ga_opt
+import supply_chain as sc
 
 class Individual_Solution(ga_opt.Chromosome):
     """A class representing an inidividual solution (i.e., a collection of policies)
@@ -10,19 +12,37 @@ class Individual_Solution(ga_opt.Chromosome):
     def __init__(self) -> None:
         """A constructor for the Individual_Solution class.
 
-        Args:
-            skus (list): a list of SKU_Type objects 
         """
         self.solution = []
         pass
         
         
     def solution_initialize(self,
-                            skus) -> None:
+                            skus: list) -> None:
 
         """Initialise the solution
+        
+        Args:
+            skus (list): a list of SKU_Type objects 
+        
         """
-        pass
+
+        solution = [] # policies will go here
+       
+        policy_factory = sc.Policy_Factory()
+
+        for sku in skus:
+            # select a random policy type
+            policy_type = random.choice(policy_factory.options)
+            # create a policy
+            policy = policy_factory.create_policy(policy_type, sku)
+            # add to the solution
+            solution.append(policy)
+
+        return solution
+
+
+
 
     def solution_evaluation(self) -> float:
 
