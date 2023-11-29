@@ -14,7 +14,7 @@ class Genetic_Algorithm:
         
     def create_population(self, 
                           size:int, 
-                          skus:list) -> list[ga_opt.Chromosome]:
+                          skus:list) -> None:
         """Generates a population of Individual_Solution objects. 
 
         Args:
@@ -24,15 +24,12 @@ class Genetic_Algorithm:
         Returns:
             list: a list of Individual_Solution objects representing a population.
         """
-        population = [] # chromosomes will go here
 
         for i in range(size):
             
             # initialise an individual solution 
             chromosome = sc.Individual_Solution().solution_initialize(skus)
-            population.append(chromosome)
-        
-        return population
+            self.population.append(chromosome)
 
     
     def evaluate_population(self) -> list:
