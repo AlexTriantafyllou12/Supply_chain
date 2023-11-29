@@ -3,9 +3,20 @@ import supply_chain as sc
 
 if __name__=='__main__':
 
+    skus = []
+    # generate some random SKUs
+    for i in range(5):
+        sku = sc.SKU(name= "sku_" + str(i), 
+                     quantity= i)
+        skus.append(sku)
+
+    # initialise the GA
     optimizer = ga_opt.Genetic_Algorithm()
+    # initialise the population
+    optimizer.create_population(size= 100,
+                                skus= skus)
     
-    optimizer.run_genetic(generations=10, population=None)
+    print(len(optimizer.population))
 
 """
     0) Initialise the SKU objects
