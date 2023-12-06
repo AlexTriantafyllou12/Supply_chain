@@ -26,10 +26,19 @@ class Chromosome(ABC):
     def mutate_chrom(self,
                     loc: int) -> None:
         
-        """Mutates a policy in the solution
+        """Mutates a gene in the solution
 
         Args:
             loc (int): location of the mutation
         """
+        pass
 
+    @abstractmethod
+    def solution_update(self, 
+                        value: list) -> None:
+        """Updates the solution
+
+        Args:
+            value (list): a list representing the new solution
+        """
         pass
