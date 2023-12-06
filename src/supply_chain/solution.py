@@ -41,7 +41,17 @@ class Individual_Solution(ga_opt.Chromosome):
 
         return solution
 
+    def solution_update(self, 
+                        value: list) -> None:
+        """Update solution attribute
 
+        Args:
+            value (list): a list of policy objects
+        """
+        if len(self.solution) != len(value):
+            ValueError("The new solution must be of the same length as the old solution.") 
+
+        self.solution = value
 
 
     def solution_evaluation(self) -> float:
