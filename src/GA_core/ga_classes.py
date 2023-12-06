@@ -1,5 +1,6 @@
 import GA_core as ga_opt
 import supply_chain as sc
+import random
 
 class Genetic_Algorithm:
     """A class representing a genetic algorithm.
@@ -53,7 +54,8 @@ class Genetic_Algorithm:
         pass
 
     def crossover(self,
-                  parents: list,
+                  parentsA: list,
+                  parentsB: list,
                   rate: float = 0.9
                   ) -> list:
         """Crossover parent solution to generate two child solutions.
@@ -65,7 +67,29 @@ class Genetic_Algorithm:
         Returns:
             list: a list of Individual_Solution objects representing child solutions.
         """
-        pass
+
+        children = [] # child solution go here
+
+        for i, p in enumerate(parentsA):
+            # define the parents
+            parentA = p
+            parentB = parentB[i]
+
+            # randomly determine if crossover takes place
+            if random.random() < rate:
+
+                # instantiate the factory
+                factory = sc.Policy_Factory()
+                crossover_type = random.choice(factory.options)
+                child1, child2 = factory.create_policy(crossover_type, parentA, parentB)
+
+                children.append(child1)
+                children.append(child2)
+            
+            else:
+                children.append(parentA)
+                children.append(parentB)
+
 
     def mutate(self,
                rate: float = 0.9) -> None:
