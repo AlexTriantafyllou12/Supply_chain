@@ -1,2 +1,2 @@
-from utilities.demand_generator import Demand_Gen
+from utilities.demand_generator import Demand_Factory
 from utilities.decorators import check_lists_same_length
