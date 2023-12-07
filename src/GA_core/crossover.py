@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
 import GA_core as ga_opt
+import utilities as u
+import random
 
 class Crossover(ABC):
     """A class representing the crossover interface.
@@ -10,11 +12,12 @@ class Crossover(ABC):
 
     @abstractmethod
     def crossover(self, 
-                  parents: list) -> list[ga_opt.Chromosome]:
+                  parentA: ga_opt.Chromosome, 
+                  parentB: ga_opt.Chromosome) -> ga_opt.Chromosome:
         """Placeholder for the corssover functions.
 
         Args:
-            parents (list): list of Individual_Solution objects representing parent solutions
+            parentsA (list): list of Individual_Solution objects representing parent solutions
 
         Returns:
             list: list of Individual_Solution objects representing child solutions.
@@ -22,18 +25,76 @@ class Crossover(ABC):
         pass
 
 
-class Crossover_var1(Crossover):
+class Crossover_single(Crossover):
+    """Single crossover class.
+
+    """
 
     def crossover(self, 
-                  parents:list) -> list[ga_opt.Chromosome]:
-        pass
+                  parentA: ga_opt.Chromosome,
+                  parentB: ga_opt.Chromosome) -> ga_opt.Chromosome:
+        
+        """Crosses over two parent solutions at a single random point.
+
+        Args:
+            parentA (Chromosome): a parent solution.
+            parentB (Chromosome): a parent solution
+        
+        Returns:
+            Chromosome: return two child solutions
+        """
+        
+        solution_length = len(parentA.solution)
+
+        # select a random crossover point
+        cp = random.randint(1, solution_length - 1)
+
+        crossover1 = parentA.solution[0:cp] + parentB.solution[cp:]
+        crossover2 = parentB.solution[0:cp] + parentA.solution[cp:]
+        
+        # update parent objects to create child objects
+        parentA.solution_update(crossover1)
+        parentB.solution_update(crossover2)
+        
+        # return two new child solutions
+        return parentA, parentB
 
 
-class Crossover_var2(Crossover):
+class Crossover_double(Crossover):
+    """Double crossover class.
+
+    """
+
 
     def crossover(self, 
-                  parents:list) -> list[ga_opt.Chromosome]:
-        pass
+                  parentA: ga_opt.Chromosome,
+                  parentB: ga_opt.Chromosome) -> ga_opt.Chromosome:
+        
+        """Crosses over two parent solutions at two random points.
+
+        Args:
+            parentA (Chromosome): a parent solution.
+            parentB (Chromosome): a parent solution
+        
+        Returns:
+            Chromosome: return two child solutions
+        """
+        
+        solution_length = len(parentA.solution)
+
+        # select a random crossover point
+        cp1 = random.randint(1, solution_length - 1)
+        cp2 = random.randint(cp1, solution_length - 1)
+
+        # double crossover
+        crossover1 = parentA.solution[0:cp1] + parentB.solution[cp1:cp2] + parentA.solution[cp2:]
+        crossover2 = parentB.solution[0:cp1] + parentA.solution[cp1:cp2] + parentB.solution[cp2:]
+
+        # update parent objects to create child objects
+        parentA.solution_update(crossover1)
+        parentB.solution_update(crossover2)
+
+        return parentA, parentB
 
 
 class Crossover_Factory():
@@ -45,10 +106,12 @@ class Crossover_Factory():
     Returns:
         list: list of Individual_Solution objects representing child solutions.
     """
+    options = ["1", "2"]
 
     @staticmethod
     def create_crossover(type:str, 
-                         parents: list) -> list[ga_opt.Chromosome]:
+                  parentA: ga_opt.Chromosome,
+                  parentB: ga_opt.Chromosome) -> ga_opt.Chromosome:
         """Crosses over parent solutions given the specified type
 
         Args:
@@ -63,8 +126,8 @@ class Crossover_Factory():
         """
 
         if type == '1':
-            return Crossover_var1()
+            return Crossover_single().crossover(parentA, parentB)
         elif type == '2':
-            return Crossover_var2()
+            return Crossover_double().crossover(parentA, parentB)
         
-        else: raise ValueError("nope...")
+        else: raise ValueError("Crossover type not valid.")

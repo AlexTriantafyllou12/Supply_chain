@@ -26,8 +26,6 @@ class Individual_Solution(ga_opt.Chromosome):
             skus (list): a list of SKU_Type objects 
         
         """
-
-        solution = [] # policies will go here
        
         policy_factory = sc.Policy_Factory()
 
@@ -37,11 +35,20 @@ class Individual_Solution(ga_opt.Chromosome):
             # create a policy
             policy = policy_factory.create_policy(policy_type, sku)
             # add to the solution
-            solution.append(policy)
-
-        return solution
+            self.solution.append(policy)
 
 
+    def solution_update(self, 
+                        value: list) -> None:
+        """Update solution attribute
+
+        Args:
+            value (list): a list of policy objects
+        """
+        if len(self.solution) != len(value):
+            ValueError("The new solution must be of the same length as the old solution.") 
+
+        self.solution = value
 
 
     def solution_evaluation(self) -> float:

@@ -17,7 +17,7 @@ class Demand(ABC):
         pass
 
 
-class Demand_Random(DemandInterface):
+class Demand_Random(Demand):
     """A class used to represent random demand.
 
     Args:
@@ -41,7 +41,7 @@ class Demand_Random(DemandInterface):
         return [int(100 * trend[i] * seasonality[i]) for i in range(weeks)]
 
 
-class Demand_Trend(DemandInterface):
+class Demand_Trend(Demand):
     """A class used to represent demand with a trend.
 
     Args:
@@ -67,7 +67,7 @@ class Demand_Trend(DemandInterface):
         return [int(100 * trend[i] * seasonality[i]) for i in range(weeks)]
 
 
-class Demand_Seasonal(DemandInterface):
+class Demand_Seasonal(Demand):
     """A class used to represent seasonal demand.
 
     Args:
@@ -162,12 +162,6 @@ class Demand_Factory():
         df_demand = skus.join(df_demand)
 
         return df_demand
-
-
-weekss=50
-test = Demand_Gen(weeks=weekss).generate(10, [9, 1], ['seasonal', 'random'])
-
-print(test)
 
 
 
