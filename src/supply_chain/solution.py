@@ -26,8 +26,6 @@ class Individual_Solution(ga_opt.Chromosome):
             skus (list): a list of SKU_Type objects 
         
         """
-
-        solution = [] # policies will go here
        
         policy_factory = sc.Policy_Factory()
 
@@ -37,9 +35,8 @@ class Individual_Solution(ga_opt.Chromosome):
             # create a policy
             policy = policy_factory.create_policy(policy_type, sku)
             # add to the solution
-            solution.append(policy)
+            self.solution.append(policy)
 
-        return solution
 
     def solution_update(self, 
                         value: list) -> None:
