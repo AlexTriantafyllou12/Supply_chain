@@ -29,7 +29,8 @@ class Genetic_Algorithm:
         for i in range(size):
             
             # initialise an individual solution 
-            chromosome = sc.Individual_Solution().solution_initialize(skus)
+            chromosome = sc.Individual_Solution()
+            chromosome.solution_initialize(skus)
             self.population.append(chromosome)
 
     
@@ -73,15 +74,15 @@ class Genetic_Algorithm:
         for i, p in enumerate(parentsA):
             # define the parents
             parentA = p
-            parentB = parentB[i]
+            parentB = parentsB[i]
 
             # randomly determine if crossover takes place
             if random.random() < rate:
 
                 # instantiate the factory
-                factory = sc.Policy_Factory()
+                factory = ga_opt.Crossover_Factory()
                 crossover_type = random.choice(factory.options)
-                child1, child2 = factory.create_policy(crossover_type, parentA, parentB)
+                child1, child2 = factory.create_crossover(crossover_type, parentA, parentB)
 
                 children.append(child1)
                 children.append(child2)
@@ -89,6 +90,8 @@ class Genetic_Algorithm:
             else:
                 children.append(parentA)
                 children.append(parentB)
+        
+        return children
 
 
     def mutate(self,
