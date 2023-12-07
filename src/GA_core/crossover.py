@@ -30,7 +30,6 @@ class Crossover_single(Crossover):
 
     """
 
-    @u.check_lists_same_length
     def crossover(self, 
                   parentA: ga_opt.Chromosome,
                   parentB: ga_opt.Chromosome) -> ga_opt.Chromosome:
@@ -46,6 +45,7 @@ class Crossover_single(Crossover):
         """
         
         solution_length = len(parentA.solution)
+
         # select a random crossover point
         cp = random.randint(1, solution_length - 1)
 
@@ -64,7 +64,8 @@ class Crossover_double(Crossover):
     """Double crossover class.
 
     """
-    @u.check_lists_same_length
+
+
     def crossover(self, 
                   parentA: ga_opt.Chromosome,
                   parentB: ga_opt.Chromosome) -> ga_opt.Chromosome:
@@ -79,15 +80,15 @@ class Crossover_double(Crossover):
             Chromosome: return two child solutions
         """
         
-        solution_length = len(parentA)
+        solution_length = len(parentA.solution)
 
         # select a random crossover point
         cp1 = random.randint(1, solution_length - 1)
         cp2 = random.randint(cp1, solution_length - 1)
 
         # double crossover
-        crossover1 = parentA[0:cp1] + parentB[cp1:cp2] + parentA[cp2:]
-        crossover2 = parentB[0:cp1] + parentA[cp1:cp2] + parentB[cp2:]
+        crossover1 = parentA.solution[0:cp1] + parentB.solution[cp1:cp2] + parentA.solution[cp2:]
+        crossover2 = parentB.solution[0:cp1] + parentA.solution[cp1:cp2] + parentB.solution[cp2:]
 
         # update parent objects to create child objects
         parentA.solution_update(crossover1)
@@ -125,8 +126,8 @@ class Crossover_Factory():
         """
 
         if type == '1':
-            return Crossover_single(parentA, parentB)
+            return Crossover_single().crossover(parentA, parentB)
         elif type == '2':
-            return Crossover_double(parentA, parentB)
+            return Crossover_double().crossover(parentA, parentB)
         
         else: raise ValueError("Crossover type not valid.")
