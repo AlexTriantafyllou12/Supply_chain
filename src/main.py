@@ -16,13 +16,17 @@ if __name__=='__main__':
     optimizer.create_population(size= 100,
                                 skus= skus)
     
+    # create some parents
     print(len(optimizer.population))
     parentA = optimizer.population[10:20]
     parentB = optimizer.population[20:30]
 
-
+    # crossover
     next_gen = optimizer.crossover(parentsA=parentA, parentsB=parentB)
     print(len(next_gen))
+
+    # mutate
+    optimizer.mutate()
 
 """
     0) Initialise the SKU objects
