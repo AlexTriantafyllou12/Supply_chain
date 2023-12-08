@@ -95,14 +95,23 @@ class Genetic_Algorithm:
 
 
     def mutate(self,
-               rate: float = 0.9) -> None:
+               rate: float = 0.3) -> None:
         """Mutates a random policy in the solution provided.
 
         Args:
-            individual (Individual_Solution): the solution to be mutated.
             rate (float, optional): probability of the mutations happening. Defaults to 0.9.
         """
-        pass
+        
+        # randomly determine if the mutation takes place
+        for i, s in enumerate(self.population):
+             
+            if random.random() < rate:
+             
+                solution_length = len(s.solution)
+                # determine the location of the mutation
+                mutation_loc = random.randint(0, solution_length-1)
+                s.mutate_chrom(loc = mutation_loc)
+
 
     def evolve(self,
                next_gen: list) -> None:
@@ -132,10 +141,10 @@ class Genetic_Algorithm:
     def create_observer(self, observer) -> None:
         self.observers.append(observer)
 
-    def notify_observers(self, generation, best_solution) -> None:
+    def notify_observers(self, generation, best_score, best_solution) -> None:
 
         for observer in self.observers:
-            observer.update(generation, best_solution)
+            observer.update(generation, best_score, best_solution)
 
 
 
