@@ -55,14 +55,9 @@ class MinMax(Policy, ga_opt.Gene):
         """
         pass
 
-    def mutate_gene(self, 
-                      min:int = None, 
-                      max: int = None)  -> None:
+    def mutate_gene(self)  -> None:
         """Update min and/ or max class attributes 
 
-        Args:
-            min (int, optional): the new min value to be updated. Defaults to None.
-            max (int, optional): the new max value to be updated. Defaults to None.
         """
         pass
 
@@ -105,14 +100,8 @@ class QR(Policy, ga_opt.Gene):
         """        
         pass
 
-    def mutate_gene(self, 
-                      q_to_order:int = None,
-                      rop:int = None)  -> None:
+    def mutate_gene(self)  -> None:
         """Update q_to_order and/or rop class attributes.
-
-        Args:
-            q_to_order (int, optional): the new q_to_order value to be updated. Defaults to None.
-            rop (int, optional): the new rop value to be updated. Defaults to None.
         """
         pass
 
@@ -156,16 +145,11 @@ class Periodic_Up_To_Point(Policy, ga_opt.Gene):
         """        
         pass
 
-    def mutate_gene(self, 
-                      time_period:int = None,
-                      order_up_to:int = None) -> None:
+    def mutate_gene(self) -> None:
         """Update time_period and/or order_up_to class attributes.
 
-        Args:
-            time_period (int, optional): the new time_period value to be updated. Defaults to None.
-            order_up_to (int, optional): the new order_up_to value to be updated. Defaults to None.
         """
-        pass
+        print('Mutated..')
 
 
 class Policy_Factory:
