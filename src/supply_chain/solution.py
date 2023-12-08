@@ -24,7 +24,6 @@ class Individual_Solution(ga_opt.Chromosome):
         
         Args:
             skus (list): a list of SKU_Type objects 
-        
         """
        
         policy_factory = sc.Policy_Factory()
@@ -69,4 +68,5 @@ class Individual_Solution(ga_opt.Chromosome):
             loc (int): location of the mutation
         """
 
-        pass
+        gene = self.solution[loc]
+        gene.mutate_gene()
