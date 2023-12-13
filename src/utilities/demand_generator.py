@@ -11,7 +11,7 @@ class Demand(ABC):
     """
     
     @abstractmethod
-    def generate(self) -> None:
+    def generate() -> None:
         """Placeholder method for demand generation.
         """
         pass
@@ -24,8 +24,7 @@ class Demand_Random(Demand):
         DemandInterface (class): Abstract parent class
     """
     
-    def generate(self,
-                 weeks = 50) -> list:
+    def generate(weeks:int = 50) -> list:
         """Generates random demand.  
 
         Args:
@@ -38,7 +37,7 @@ class Demand_Random(Demand):
         trend = [random.uniform(1.0, 3) for _ in range(weeks)]
         seasonality = [random.uniform(0.8, 1.2) for _ in range(weeks)]  
         
-        return [int(100 * trend[i] * seasonality[i]) for i in range(weeks)]
+        return [int(30 * trend[i] * seasonality[i]) for i in range(weeks)]
 
 
 class Demand_Trend(Demand):
@@ -48,8 +47,7 @@ class Demand_Trend(Demand):
         DemandInterface (class): Abstract parent class
     """
     
-    def generate(self,
-                 weeks = 50, 
+    def generate(weeks = 50, 
                  trend_coeff=0.1) -> list:
         """Generates demand with a trend.  
 
@@ -64,7 +62,7 @@ class Demand_Trend(Demand):
         trend = [random.uniform(1.0, 3) + trend_coeff*x for x in range(weeks)]
         seasonality = [random.uniform(0.8, 1.2) for _ in range(weeks)]  
         
-        return [int(100 * trend[i] * seasonality[i]) for i in range(weeks)]
+        return [int(30 * trend[i] * seasonality[i]) for i in range(weeks)]
 
 
 class Demand_Seasonal(Demand):
@@ -74,8 +72,7 @@ class Demand_Seasonal(Demand):
         DemandInterface (class): Abstract parent class
     """
     
-    def generate(self, 
-                 weeks = 50,
+    def generate(weeks = 50,
                  freq_coeff=0.2) -> list:
         """Generates seasonal demand. 
 
@@ -90,7 +87,7 @@ class Demand_Seasonal(Demand):
         trend = [random.uniform(1.0, 3) for _ in range(weeks)]
         seasonality = [np.sin(freq_coeff*x) + 1 for x in range(weeks)]  
         
-        return [int(100 * trend[i] * seasonality[i]) for i in range(weeks)]
+        return [int(30 * trend[i] * seasonality[i]) for i in range(weeks)]
 
 
 
@@ -141,7 +138,7 @@ class Demand_Factory():
         for i, demand in enumerate(type):
             if demand == 'random':
                 for _ in range(split[i]):
-                    data.append(Demand_Random().generate(weeks=self.period))
+                    data.append(Demand_Random.generate(weeks=self.period))
 
             elif demand == 'trend':
                 for _ in range(split[i]):
@@ -149,7 +146,7 @@ class Demand_Factory():
             
             elif demand == 'seasonal':
                 for _ in range(split[i]):
-                    data.append(Demand_Seasonal().generate(weeks=self.period))
+                    data.append(Demand_Seasonal.generate(weeks=self.period))
             
             else: 
                 raise ValueError('Invalid demand type')
