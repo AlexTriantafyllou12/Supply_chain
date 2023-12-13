@@ -14,6 +14,25 @@ class Policy(metaclass=ABCMeta):
         """
         pass
 
+    @abstractmethod
+    def order_quantity(self) -> int:
+        """Determine the quantity to order.
+
+        Returns:
+            int: order quantity
+        """
+
+        pass
+
+    @abstractmethod
+    def check_if_order_needed(self) -> bool:
+        """Check if an order needs to be placed given the current invenotry level
+
+        Returns:
+            bool: True/ False
+        """
+        pass
+
 
 
 class MinMax(Policy, ga_opt.Gene):
@@ -33,8 +52,8 @@ class MinMax(Policy, ga_opt.Gene):
     
     def __init__(self, 
                  sku: sc.SKU,
-                 min: int = 0,
-                 max: int = 0) -> None:
+                 min: int = 50,
+                 max: int = 300) -> None:
         """Constructor for MinMax class.
 
         Args:
@@ -61,6 +80,44 @@ class MinMax(Policy, ga_opt.Gene):
         """
         pass
 
+    def order_quantity(self,
+                          qoh: int,
+                          on_order: int) -> int:
+        """Determine the quantity to order.
+
+        Args:
+            qoh (int): quantity on hand (i.e., in inventory)
+            on_order (int): quantity on order
+
+        Returns:
+            int: order quantity
+        """
+
+        order_quantity = self.max - qoh - on_order
+        
+        return order_quantity
+        
+    def check_if_order_needed(self,
+                              qoh: int,
+                              on_order: int,
+                              period: int) -> bool:
+        """Check if an order needs to be placed given the current invenotry level
+
+        Args:
+            qoh (int): quantity on hand (i.e., in inventory)
+            on_order (int): quantity on order
+            period (int): time period at the time of checking the inventory
+
+        Returns:
+            bool: True/ False
+        """
+        
+        if (qoh + on_order) < self.min:
+            return True
+        
+        return False
+
+
 
 class QR(Policy, ga_opt.Gene):
     """A class used to represent (Q, R) inventory policy.
@@ -78,8 +135,8 @@ class QR(Policy, ga_opt.Gene):
 
     def __init__(self, 
                  sku: sc.SKU,
-                 q_to_order: int = 0,
-                 rop: int = 0) -> None:
+                 q_to_order: int = 300,
+                 rop: int = 90) -> None:
         """Constructor for QR class.
 
         Args:
@@ -105,6 +162,43 @@ class QR(Policy, ga_opt.Gene):
         """
         pass
 
+    def order_quantity(self, 
+                        qoh: int,
+                        on_order: int) -> int:
+        """Determine the quantity to order.
+
+        Args:
+            qoh (int): quantity on hand (i.e., in inventory)
+            on_order (int): quantity on order
+
+        Returns:
+            int: order quantity
+        """
+        
+        return self.q_to_order
+
+
+    def check_if_order_needed(self,
+                              qoh: int,
+                              on_order: int,
+                              period: int) -> bool:
+        """Check if an order needs to be placed given the current time period
+
+        Args:
+            qoh (int): quantity on hand (i.e., in inventory)
+            on_order (int): quantity on order
+            period (int): time period at the time of checking the inventory
+
+        Returns:
+            bool: True/ False
+        """
+        
+        # check if the current invenotry is bellow rop
+        if qoh < self.rop:
+            return True
+        
+        return False
+
 
 class Periodic_Up_To_Point(Policy, ga_opt.Gene):
     """A class used to represent a periodic inventory policy.
@@ -123,8 +217,8 @@ class Periodic_Up_To_Point(Policy, ga_opt.Gene):
 
     def __init__(self, 
                  sku: sc.SKU,
-                 time_period: int = 0,
-                 order_up_to: int = 0) -> None:
+                 time_period: int = 4,
+                 order_up_to: int = 400) -> None:
         """Constructor for Periodic_Up_To_Point class.
 
         Args:
@@ -150,6 +244,51 @@ class Periodic_Up_To_Point(Policy, ga_opt.Gene):
 
         """
         print('Mutated..')
+    
+    def order_quantity(self, 
+                        qoh: int,
+                        on_order: int) -> int:
+        """Determine the quantity to order.
+
+        Args:
+            qoh (int): quantity on hand (i.e., in inventory)
+            on_order (int): quantity on order
+
+        Returns:
+            int: order quantity
+        """
+
+        # check that qoh doesn't exceed order up to point
+        if qoh < self.order_up_to:
+            order_quantity = self.order_up_to - qoh
+            
+        else:
+            order_quantity = 0
+        
+        return order_quantity
+
+
+    def check_if_order_needed(self,
+                              qoh: int,
+                              on_order: int,
+                              period: int) -> bool:
+        """Check if an order needs to be placed given the current time period
+
+        Args:
+            qoh (int): quantity on hand (i.e., in inventory)
+            on_order (int): quantity on order
+            period (int): time period at the time of checking the inventory
+
+        Returns:
+            bool: True/ False
+        """
+        
+        # check if the policy order period mathces the current time period
+        if period % self.time_period == 0:
+            return True
+        
+        return False
+    
 
 
 class Policy_Factory:

@@ -9,10 +9,12 @@ class SKU:
 
     def __init__(self, 
                  name: str,
-                 quantity: int) -> None:
+                 quantity: int,
+                 per_item_cost: float) -> None:
         
         """ A constuctor for the SKU class
         """
         
         self.name = name
         self.quantity = quantity
+        self.per_item_cost = per_item_cost

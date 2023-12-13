@@ -1,5 +1,6 @@
 import GA_core as ga_opt
 import supply_chain as sc
+import pandas as pd
 import random
 
 class Genetic_Algorithm:
@@ -34,13 +35,35 @@ class Genetic_Algorithm:
             self.population.append(chromosome)
 
     
-    def evaluate_population(self) -> list:
+    def evaluate_population(self,
+                            demand: pd.DataFrame,
+                            time_periods: int,
+                            lead_time: int = 2,
+                            stockout_coeff: float = 1.5,
+                            holding_cost: float = 10.5) -> None:
         """Evaluates the fitness of each solution in the population.
 
-        Returns:
-            list: a list of fitness scores
+        Args:
+            demand (pd.DataFrame): dataframe of demands for every SKU
+            time_periods (int): number of time periods covered by the demand
+            lead_time (int, optional): delivery lead time. Defaults to 2.
+            stockout_coeff (float, optional): a coefficient used to calculate stockout costs. Defaults to 1.5.
+            holding_cost (float, optional): per item holding cost. Defaults to 10.5.
         """
-        pass
+
+        pop_fitness = [] # fitness scores for individual solutions go here
+        
+        for i in self.population:
+            # find fitness for each individual
+            i_fitness = i.solution_evaluation(demand=demand,
+                                              time_periods=time_periods,
+                                              lead_time=lead_time,
+                                              stockout_coeff=stockout_coeff,
+                                              holding_cost=holding_cost)
+            pop_fitness.append(i_fitness)
+
+        self.fitness.append(pop_fitness)
+
 
     def select_parents(self, 
                        pool_size:int  = 3) -> list:
