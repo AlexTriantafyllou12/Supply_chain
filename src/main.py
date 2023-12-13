@@ -1,14 +1,25 @@
 import GA_core as ga_opt
 import supply_chain as sc
+import utilities as util
 
 if __name__=='__main__':
 
+    nr_skus = 5
+    time_periods = 30
+
     skus = []
     # generate some random SKUs
-    for i in range(5):
+    for i in range(nr_skus):
         sku = sc.SKU(name= "sku_" + str(i), 
-                     quantity= i)
+                     quantity= i*80,
+                     per_item_cost=10*i+10)
         skus.append(sku)
+
+    demand_factory = util.Demand_Factory(time_periods)
+
+    # generate demand
+    demand = demand_factory.generate(nr_skus=nr_skus, split=[1, 2, 2], type=['random', 'trend', 'seasonal'])
+    demand.to_csv('demand.csv', index=False)
 
     # initialise the GA
     optimizer = ga_opt.Genetic_Algorithm()
@@ -27,6 +38,12 @@ if __name__=='__main__':
 
     # mutate
     optimizer.mutate()
+
+    # evaluate a policy
+    rand_policy = optimizer.population[2]
+    print(rand_policy.solution)
+    fitness = rand_policy.solution_evaluation(demand=demand, time_periods=time_periods)
+    print('Fitness: ' + str(fitness))
 
 """
     0) Initialise the SKU objects
