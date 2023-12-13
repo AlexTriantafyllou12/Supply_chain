@@ -16,7 +16,6 @@ class Individual_Solution(ga_opt.Chromosome):
 
         """
         self.solution = []
-        pass
         
         
     def solution_initialize(self,
@@ -53,11 +52,11 @@ class Individual_Solution(ga_opt.Chromosome):
 
 
     def solution_evaluation(self,
-                            demand: pd.DataFrame,
-                            time_periods: int,
-                            lead_time: int = 2,
-                            stockout_coeff: float = 1.5,
-                            holding_cost: float = 10.5) -> float:
+                    demand: pd.DataFrame,
+                    time_periods: int,
+                    lead_time: int = 2,
+                    stockout_coeff: float = 1.5,
+                    holding_cost: float = 10.5) -> float:
 
         """Evaluate the fitness of the solution
 
@@ -115,6 +114,8 @@ class Individual_Solution(ga_opt.Chromosome):
         fitness = np.sum(order_costs) + np.sum(holding_costs) + np.sum(stockout_costs)
 
         return fitness
+
+
 
     def mutate_chrom(self,
                loc: int) -> None:
